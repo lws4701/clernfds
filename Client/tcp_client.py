@@ -13,11 +13,14 @@ class TCPClient:
     s = None  # socket
 
     def __init__(self, host: str = socket.gethostname(), port: int = 8080):
+        print("Client Connected")
+        if 1025 < port < 65535:
+            self.port = port
+        else:
+            self.port = 8080
+            print("*** TCP Server - {} is out of bounds and the default port 8080 has been used ***".format(port))
+        # no efficient way to check host it just wont work if wrong.
         self.host = host
-        self.port = port
-
-    def __del__(self):
-        self.close()
 
     def setPort(self, port: int):
         """Set the server port"""
@@ -34,24 +37,29 @@ class TCPClient:
     def connect(self):
         """Connect Client to Host Server"""
         try:
-            self.s = socket.socket().connect((self.host, self.port))
+            self.s = socket.socket()
+            self.s.connect((self.host, self.port))
         except Exception as err_type:
             print("\n*** TCP Client \"{}\" error while connecting to server***\n".format(err_type))
 
     def close(self):
         """ Close connection between the client and the host"""
         try:
-            self.s.close()
-            s = None
+            if self.s is not None:
+                self.s.close()
+                s = None
+                print("Client Disconnected")
+            else:
+                print("\n*** TCP Client - Already Disconnected ***\n")
         except Exception as err_type:
             print("\n*** TCP Client \"{}\" error while closing connection***\n".format(err_type))
 
-    def send(self, data=''):
+    def send(self, data=None):
         """Send data between client and host"""
         try:
             if self.s is not None:
                 # dummy data for testing purposes
-                if data == '':
+                if data is None:
                     message = input('What ya wanna send? -> ')
 
                 while message != '':
@@ -67,13 +75,3 @@ class TCPClient:
     def data(self):
 
         print("Host is: {} and the port is {}".format(self.host, self.port))
-
-
-def main():
-    example = TCPClient()
-    example.data()
-    example.connect()
-    example.send()
-
-
-main()
