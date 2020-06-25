@@ -10,41 +10,32 @@ class TCPServer:
 
     host = None  # server address eg.) 127.0.0.1 (local)
     port = None  # port number eg.) 1025–65535
-    s = socket.socket()  # server socket
     c = None  # client socket
-    cAddress = None
+    cAddress = None  # client address
 
     def __init__(self, host: str = socket.gethostname(), port: int = 8080):
-        print("Server Connected")
+        print("Server Online")
         if 1025 < port < 65535:
             self.port = port
         else:
             self.port = 8080
             print("*** TCP Server - {} is out of bounds and the default port 8080 has been used ***".format(port))
-
         # no efficient way to check host it just wont work if wrong.
         self.host = host
 
-    def setPort(self, port: int):
-        """Set the server port"""
-        self.port = port
-
-    def setHost(self, host: str):
-        """Set the server address"""
-        self.host = host
-
     def connect(self):
-        """Connect client and server"""
+        """Connect client and host"""
         try:
-            self.s.bind((self.host, self.port))
-            self.s.listen(1)
-            self.c, self.cAddress = self.s.accept()
+            s = socket.socket()
+            s.bind((self.host, self.port))
+            s.listen()
+            self.c, self.cAddress = s.accept()
             print("Connection from: {}".format(str(self.cAddress)))
         except Exception as err_type:
             print("\n*** TCP Server \"{}\" error while connecting client to server***\n".format(err_type))
 
     def receive(self):
-        """Send data between Server and host"""
+        """Receive data between and host"""
         try:
             if self.c is not None:
                 while True:
@@ -65,7 +56,7 @@ class TCPServer:
             if self.c is not None:
                 self.c.close()
                 c = None
-                print("Server Disconnected")
+                print("Server Offline")
             else:
                 print("\n*** TCP Server - Already Disconnected ***\n")
         except Exception as err_type:
