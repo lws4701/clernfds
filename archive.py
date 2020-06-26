@@ -1,6 +1,7 @@
 '''
 archive.py
 
+Description: A simple archiving handling class made for handling video frame archives
 '''
 from zipfile import ZipFile
 from datetime import datetime
@@ -25,16 +26,19 @@ class Archive:
         os.chdir(self.nameWOExtension)
         self.zipArchive.extractall()
 
-# Helper function for reading an image a byte string
-def readImage(fileName):
-    try:
-        with open(fileName, 'rb') as cf:
-            return cf.read() # returns a string of hex value
-    except:
-        print("Unable to read image: %s" % fileName) # In the case the file does not exist/cannot be opened
+
+# DO NOT USE: CV2 HAS cv2.imwrite() and cv2.imread(). Use these for writing to file instead
+
+# # Helper function for reading an image a byte string
+# def readImage(fileName):
+#     try:
+#         with open(fileName, 'rb') as cf:
+#             return cf.read() # returns a string of hex values
+#     except:
+#         print("Unable to read image: %s" % fileName) # In the case the file does not exist/cannot be opened
 
 
-# Write an image as a bytestring to a file
-def writeImage(byteString, fileName):
-    with open(fileName, 'wb') as cf:
-        cf.write(byteString) # writes a hexadecimal stream to a file
+# # Write an image as a bytestring to a file
+# def writeImage(byteString, fileName):
+#     with open(fileName, 'wb') as cf:
+#         cf.write(byteString) # writes a hexadecimal stream to a file
