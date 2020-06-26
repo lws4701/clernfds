@@ -27,7 +27,7 @@ class TCPClient:
             self.s.connect((self.host, self.port))
             print("Client Connected")
         except Exception as err_type:
-            print("\n*** TCP Client \"{}\" error while connecting to server***\n".format(err_type))
+            print("\n*** TCP Client \"{}\" error while connecting to server***".format(err_type))
 
     def send(self, data=None):
         """Send data between client and host"""
@@ -46,7 +46,7 @@ class TCPClient:
             else:
                 print("*** TCP Client - Connection between server has not been made ***")
         except Exception as err_type:
-            print("\n*** TCP Client \"{}\" error while trying to send***\n".format(err_type))
+            print("\n*** TCP Client \"{}\" error while trying to send***".format(err_type))
 
     def close(self):
         """ Close connection between the client and the host"""
@@ -58,7 +58,7 @@ class TCPClient:
             else:
                 print("\n*** TCP Client - Already Disconnected ***\n")
         except Exception as err_type:
-            print("\n*** TCP Client \"{}\" error while closing connection***\n".format(err_type))
+            print("\n*** TCP Client \"{}\" error while closing connection***".format(err_type))
 
     def data(self):
         print("Host is: {} and the port is {}".format(self.host, self.port))
