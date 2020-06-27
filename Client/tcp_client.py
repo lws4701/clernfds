@@ -67,6 +67,8 @@ class TCPClient:
                     # Send file as bytestring
                     with open(fileName, "rb") as sendingFile:
                         self.s.sendall(sendingFile.read())
+                        sendingFile.close()
+                    os.remove(fileName)
         except Exception as err_type:
             print("\n***TCP Client \"%s\" error while trying to send ***" % err_type)
 
