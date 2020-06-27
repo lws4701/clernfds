@@ -63,7 +63,7 @@ class TCPClient:
                     fileSize = os.path.getsize(fileName)
                     # Send header with filename and size
                     self.s.send((("File: %s\nSize%s") %
-                                 (fileName, fileSize)).encode("utf-8"))
+                                 (os.path.basename(fileName), fileSize)).encode("utf-8"))
                     # Send file as bytestring
                     with open(fileName, "rb") as sendingFile:
                         self.s.sendall(sendingFile.read())
