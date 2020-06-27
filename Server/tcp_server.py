@@ -1,5 +1,6 @@
 import socket
 import os
+import archive
 
 
 class TCPServer:
@@ -64,6 +65,9 @@ class TCPServer:
                     bytesRead = self.c.recv()
                     writeFile.write(bytesRead)
                     writeFile.close()
+                    zipFile = archive.Archive(fileHeader)
+                    zipFile.extract()
+
         except Exception as err_type:
             print(
                 "\n*** TCP SERVER \"%s\" error while trying to receive file ***" % err_type)
