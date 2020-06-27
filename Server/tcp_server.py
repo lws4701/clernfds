@@ -1,4 +1,5 @@
 import socket
+import os
 
 
 class TCPServer:
@@ -19,7 +20,8 @@ class TCPServer:
             self.port = port
         else:
             self.port = 8080
-            print("*** TCP Server - {} is out of bounds and the default port 8080 has been used ***".format(port))
+            print(
+                "*** TCP Server - {} is out of bounds and the default port 8080 has been used ***".format(port))
         # no efficient way to check host it just wont work if wrong.
         self.host = host
 
@@ -32,7 +34,8 @@ class TCPServer:
             self.c, self.cAddress = s.accept()
             print("Connection from: {}".format(str(self.cAddress)))
         except Exception as err_type:
-            print("\n*** TCP Server \"{}\" error while connecting client to server***\n".format(err_type))
+            print(
+                "\n*** TCP Server \"{}\" error while connecting client to server***\n".format(err_type))
 
     def receive(self):
         """Receive data between and host"""
@@ -46,9 +49,24 @@ class TCPServer:
                     data = data.upper()
                     self.c.send(data.encode('utf-8'))
             else:
-                print("\n*** TCP Server \"{}\" client has not been connected  to server***\n")
+                print(
+                    "\n*** TCP Server \"{}\" client has not been connected  to server***\n")
         except Exception as err_type:
-            print("\n*** TCP Server \"{}\" error while trying to send***\n".format(err_type))
+            print(
+                "\n*** TCP Server \"{}\" error while trying to send***\n".format(err_type))
+
+    def receiveFile(self):
+        '''Receive file from client'''
+        try:
+            if self.c is not None:
+                fileHeader = self.c.recv().decode('utf-8')
+                with open("archives/" + fileHeader, "wb") as writeFile:
+                    bytesRead = self.c.recv()
+                    writeFile.write(bytesRead)
+                    writeFile.close()
+        except Exception as err_type:
+            print(
+                "\n*** TCP SERVER \"%s\" error while trying to receive file ***" % err_type)
 
     def close(self):
         """ Close connection between the Server and the host"""
@@ -60,7 +78,8 @@ class TCPServer:
             else:
                 print("\n*** TCP Server - Already Disconnected ***\n")
         except Exception as err_type:
-            print("\n*** TCP Server \"{}\" error while closing connection***\n".format(err_type))
+            print(
+                "\n*** TCP Server \"{}\" error while closing connection***\n".format(err_type))
 
     def data(self):
         print("Host is: {} and the port is {}".format(self.host, self.port))
