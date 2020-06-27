@@ -65,8 +65,8 @@ class TCPServer:
                     bytesRead = self.c.recv()
                     writeFile.write(bytesRead)
                     writeFile.close()
-                    zipFile = archive.Archive(fileHeader)
-                    zipFile.extract()
+                    # zipFile = archive.Archive(fileHeader) TODO: Possibly add extraction to method
+                    # zipFile.extract()
 
         except Exception as err_type:
             print(
