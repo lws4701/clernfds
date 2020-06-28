@@ -10,7 +10,7 @@ import os
 
 
 class Archive:
-    def __init__(self, fileName=str(abs(hash(datetime.now())) + '.zip')):
+    def __init__(self, fileName=str(abs(hash(datetime.now()))) + '.zip'):
         self.nameWOExtension = fileName.replace('.zip', '')
         self.zipArchive = ZipFile(fileName, 'w')
 
@@ -25,6 +25,7 @@ class Archive:
         os.mkdir(self.nameWOExtension)
         os.chdir(self.nameWOExtension)
         self.zipArchive.extractall()
+        self.zipArchive.close()
 
 
 # DO NOT USE: CV2 HAS cv2.imwrite() and cv2.imread(). Use these for writing to file instead

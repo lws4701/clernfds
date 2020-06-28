@@ -62,13 +62,16 @@ class TCPClient:
                 else:
                     fileSize = os.path.getsize(fileName)
                     # Send header with filename and size
-                    self.s.send((("File: %s\nSize%s") %
-                                 (os.path.basename(fileName), fileSize)).encode("utf-8"))
+                    header = os.path.basename(fileName).ljust(512)
+                    self.s.send(header.encode('ascii'))
                     # Send file as bytestring
                     with open(fileName, "rb") as sendingFile:
-                        self.s.sendall(sendingFile.read())
-                        sendingFile.close()
-                    os.remove(fileName)
+                        sent = 0
+                        while sent < fileSize:
+                            bytesRead = sendingFile.read(4096)
+                            self.s.sendall(bytesRead)
+                            sent += 4096
+                    # os.remove(fileName)
         except Exception as err_type:
             print("\n***TCP Client \"%s\" error while trying to send ***" % err_type)
 
