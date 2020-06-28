@@ -10,7 +10,7 @@ import os
 
 
 class Archive:
-    def __init__(self, fileName=str(abs(hash(datetime.now())) + '.zip')):
+    def __init__(self, fileName=str(abs(hash(datetime.now()))) + '.zip'):
         self.nameWOExtension = fileName.replace('.zip', '')
         self.zipArchive = ZipFile(fileName, 'w')
 

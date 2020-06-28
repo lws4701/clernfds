@@ -60,10 +60,15 @@ class TCPServer:
         '''Receive file from client'''
         try:
             if self.c is not None:
-                fileHeader = self.c.recv().decode('utf-8')
+                if not(os.path.exists("./archives")):
+                    os.mkdir("archives")
+                fileHeader = self.c.recv(512).decode().strip()
                 with open("archives/" + fileHeader, "wb") as writeFile:
-                    bytesRead = self.c.recv()
-                    writeFile.write(bytesRead)
+                    while True:
+                        bytesRead = self.c.recv(4096)
+                        if not bytesRead:
+                            break
+                        writeFile.write(bytesRead)
                     writeFile.close()
                     # zipFile = archive.Archive(fileHeader) TODO: Possibly add extraction to method
                     # zipFile.extract()
