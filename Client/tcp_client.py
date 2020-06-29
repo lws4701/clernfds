@@ -54,7 +54,7 @@ class TCPClient:
                 "\n*** TCP Client \"{}\" error while trying to send***".format(err_type))
 
     def sendFile(self, fileName):
-        '''Send file from client to server'''
+        """Send file from client to server"""
         try:
             if self.s is not None:
                 if fileName is None:
@@ -67,10 +67,16 @@ class TCPClient:
                     # Send file as bytestring
                     with open(fileName, "rb") as sendingFile:
                         sent = 0
+                        response = None
                         while sent < fileSize:
-                            bytesRead = sendingFile.read(4096)
+                            bytesRead = sendingFile.read(1024)
                             self.s.sendall(bytesRead)
-                            sent += 4096
+                            sent += 1024
+                            print("+", end="")
+                            # TCP Response
+                            response = self.s.recv(1024).decode('utf-8')
+                    sendingFile.close()
+                    print("\nServer Response = %s" % response)
                     # os.remove(fileName)
         except Exception as err_type:
             print("\n***TCP Client \"%s\" error while trying to send ***" % err_type)

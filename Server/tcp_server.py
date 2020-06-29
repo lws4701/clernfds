@@ -1,6 +1,6 @@
 import socket
 import os
-import archive
+import Server.archive
 
 
 class TCPServer:
@@ -57,21 +57,26 @@ class TCPServer:
                 "\n*** TCP Server \"{}\" error while trying to send***\n".format(err_type))
 
     def receiveFile(self):
-        '''Receive file from client'''
+        """Receive file from client"""
         try:
             if self.c is not None:
-                if not(os.path.exists("./archives")):
+                if not (os.path.exists("./archives")):
                     os.mkdir("archives")
                 fileHeader = self.c.recv(512).decode().strip()
+                response = fileHeader.upper() + " RECEIVED"
                 with open("archives/" + fileHeader, "wb") as writeFile:
                     while True:
-                        bytesRead = self.c.recv(4096)
+                        bytesRead = self.c.recv(1024)
                         if not bytesRead:
                             break
                         writeFile.write(bytesRead)
+                        print("+", end="")
+                        # TCP Response
+                        self.c.send(response.encode('utf-8'))
                     writeFile.close()
-                    # zipFile = archive.Archive(fileHeader) TODO: Possibly add extraction to method
-                    # zipFile.extract()
+                print("\n%s Received" % fileHeader)
+                # zipFile = archive.Archive(fileHeader) TODO: Possibly add extraction to method
+                # zipFile.extract()
 
         except Exception as err_type:
             print(
