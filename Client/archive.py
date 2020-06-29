@@ -10,7 +10,10 @@ import os
 
 
 class Archive:
+    fileName = None
+
     def __init__(self, fileName=str(abs(hash(datetime.now()))) + '.zip'):
+        self.fileName = fileName
         self.nameWOExtension = fileName.replace('.zip', '')
         self.zipArchive = ZipFile(fileName, 'w')
 
@@ -27,7 +30,16 @@ class Archive:
         self.zipArchive.extractall()
         self.zipArchive.close()
 
+    def close(self):
+        """Ryan - Need this to send a valid .zip"""
+        self.zipArchive.close()
 
+    def open(self):
+        """
+        Ryan - May have some use for future
+        (maybe only instantiate the zip once?)
+        """
+        self.zipArchive.open()
 # DO NOT USE: CV2 HAS cv2.imwrite() and cv2.imread(). Use these for writing to file instead
 
 # # Helper function for reading an image a byte string
