@@ -2,10 +2,11 @@
 # https://github.com/tensorflow/models/blob/master/research/object_detection/object_detection_tutorial.ipynb
 # Tensorflow Object Detection Detector
 
+import time
+import os
+import cv2
 import numpy as np
 import tensorflow as tf
-import cv2
-import time
 
 
 class DetectorAPI:
@@ -52,7 +53,26 @@ class DetectorAPI:
                         int(frame_boxes[0, i, 2] * im_height),
                         int(frame_boxes[0, i, 3]*im_width))
 
-        return boxes_list, frame_scores[0].tolist(), [int(x) for x in frame_classes[0].tolist()], int(frame_num[0])
+        scores = frame_scores[0].tolist()
+        classes = [int(x) for x in frame_classes[0].tolist()]
+        box_coords = []
+        for i in range(len(boxes_list)):
+            # Class 1 represents human
+            if classes[i] == 1 and scores[i] > threshold:
+                box = boxes_list[i]
+                cv2.rectangle(image, (box[1], box[0]), (box[3], box[2]), (255, 0, 0), 2)
+                box_coords.append([(box[1], box[0]), (box[3], box[0]), (box[1], box[2]), (box[3], box[2])])
+        return box_coords
+        #return boxes_list, frame_scores[0].tolist(), [int(x) for x in frame_classes[0].tolist()], int(frame_num[0])
+
+    def processPacket(self, packet):
+        for frame in packet:
+            frame = 'img/' + frame
+            cap = cv2.VideoCapture(frame)
+            r, image = cap.read()
+            img = cv2.resize(image, (1280, 720))
+            coords = self.processFrame(img)
+            print(coords)
 
     def close(self):
         self.sess.close()
@@ -63,24 +83,26 @@ if __name__ == "__main__":
     model_path = 'test/faster_rcnn_inception_v2_coco/frozen_inference_graph.pb'
     odapi = DetectorAPI(path_to_ckpt=model_path)
     threshold = 0.7
-    cap = cv2.VideoCapture('img/testpic5.jpg')
+    frame_packet = os.listdir('img')
 
-    #while True:
-    r, img = cap.read()
-    img = cv2.resize(img, (1280, 720))
-
-    boxes, scores, classes, num = odapi.processFrame(img)
+    # for frame in frame_packet:
+    #     frame = 'img/' + frame
+    #     cap = cv2.VideoCapture(frame)
+    #     r, img = cap.read()
+    #     img = cv2.resize(img, (1280, 720))
+    odapi.processPacket(frame_packet)
+    #boxes, scores, classes, num = odapi.processPacket(img)
 
     # Visualization of the results of a detection.
 
-    for i in range(len(boxes)):
-        # Class 1 represents human
-        if classes[i] == 1 and scores[i] > threshold:
-            box = boxes[i]
-            cv2.rectangle(img, (box[1], box[0]), (box[3], box[2]), (255, 0, 0), 2)
-            print("(", box[1], ", ", box[0], ")")
-            print("(", box[3], ", ", box[2], ")")
-    cv2.imshow("preview", img)
-    key = cv2.waitKey(5000)
+    # for i in range(len(boxes)):
+    #     # Class 1 represents human
+    #     if classes[i] == 1 and scores[i] > threshold:
+    #         box = boxes[i]
+    #         cv2.rectangle(img, (box[1], box[0]), (box[3], box[2]), (255, 0, 0), 2)
+    #         print("(", box[1], ", ", box[0], ")")
+    #         print("(", box[3], ", ", box[2], ")")
+    # cv2.imshow("preview", img)
+    # key = cv2.waitKey(10000)
     #if key & 0xFF == ord('q'):
         #break
