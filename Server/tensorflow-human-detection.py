@@ -56,6 +56,7 @@ class DetectorAPI:
         scores = frame_scores[0].tolist()
         classes = [int(x) for x in frame_classes[0].tolist()]
         box_coords = []
+
         for i in range(len(boxes_list)):
             # Class 1 represents human
             if classes[i] == 1 and scores[i] > threshold:
