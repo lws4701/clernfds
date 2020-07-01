@@ -2,10 +2,11 @@
 # https://github.com/tensorflow/models/blob/master/research/object_detection/object_detection_tutorial.ipynb
 # Tensorflow Object Detection Detector
 
+import time
+import os
+import cv2
 import numpy as np
 import tensorflow as tf
-import cv2
-import time
 
 
 class DetectorAPI:
@@ -37,12 +38,11 @@ class DetectorAPI:
         # Expand dimensions since the trained_model expects images to have shape: [1, None, None, 3]
         image_np_expanded = np.expand_dims(image, axis=0)
         # Actual detection.
+        start_time = time.time()
         (frame_boxes, frame_scores, frame_classes, frame_num) = self.sess.run(
             [self.detection_boxes, self.detection_scores, self.detection_classes, self.num_detections],
             feed_dict={self.image_tensor: image_np_expanded})
-        end_time = time.time()
 
-        #print("Elapsed Time:", end_time-start_time)
 
         im_height, im_width, _ = image.shape
         boxes_list = [None for i in range(frame_boxes.shape[1])]
@@ -52,7 +52,36 @@ class DetectorAPI:
                         int(frame_boxes[0, i, 2] * im_height),
                         int(frame_boxes[0, i, 3]*im_width))
 
-        return boxes_list, frame_scores[0].tolist(), [int(x) for x in frame_classes[0].tolist()], int(frame_num[0])
+        scores = frame_scores[0].tolist()
+        classes = [int(x) for x in frame_classes[0].tolist()]
+        box_coords = []
+
+        for i in range(len(boxes_list)):
+            # Class 1 represents human
+            if classes[i] == 1 and scores[i] > threshold:
+                box = boxes_list[i]
+                cv2.rectangle(image, (box[1], box[0]), (box[3], box[2]), (255, 0, 0), 2)
+                box_coords.append([(box[1], box[0]), (box[3], box[0]), (box[1], box[2]), (box[3], box[2])])
+
+        end_time = time.time()
+        print("Elapsed Time:", end_time - start_time)
+        return box_coords
+
+        #return boxes_list, frame_scores[0].tolist(), [int(x) for x in frame_classes[0].tolist()], int(frame_num[0])
+
+    def processPacket(self, packet):
+        box_dict = {}
+
+        for frame in packet:
+            frame_path = 'img/' + frame
+            cap = cv2.VideoCapture(frame_path)
+            r, image = cap.read()
+            img = cv2.resize(image, (1280, 720))
+            coords = self.processFrame(img)
+            #print(coords)
+            box_dict[frame] = coords
+
+        return box_dict
 
     def close(self):
         self.sess.close()
@@ -63,24 +92,26 @@ if __name__ == "__main__":
     model_path = 'test/faster_rcnn_inception_v2_coco/frozen_inference_graph.pb'
     odapi = DetectorAPI(path_to_ckpt=model_path)
     threshold = 0.7
-    cap = cv2.VideoCapture('img/testpic5.jpg')
-
-    #while True:
-    r, img = cap.read()
-    img = cv2.resize(img, (1280, 720))
-
-    boxes, scores, classes, num = odapi.processFrame(img)
+    frame_packet = os.listdir('img')
+    packet_coords = odapi.processPacket(frame_packet)
+    print(packet_coords)
+    # for frame in frame_packet:
+    #     frame = 'img/' + frame
+    #     cap = cv2.VideoCapture(frame)
+    #     r, img = cap.read()
+    #     img = cv2.resize(img, (1280, 720))
+    #boxes, scores, classes, num = odapi.processPacket(img)
 
     # Visualization of the results of a detection.
 
-    for i in range(len(boxes)):
-        # Class 1 represents human
-        if classes[i] == 1 and scores[i] > threshold:
-            box = boxes[i]
-            cv2.rectangle(img, (box[1], box[0]), (box[3], box[2]), (255, 0, 0), 2)
-            print("(", box[1], ", ", box[0], ")")
-            print("(", box[3], ", ", box[2], ")")
-    cv2.imshow("preview", img)
-    key = cv2.waitKey(5000)
+    # for i in range(len(boxes)):
+    #     # Class 1 represents human
+    #     if classes[i] == 1 and scores[i] > threshold:
+    #         box = boxes[i]
+    #         cv2.rectangle(img, (box[1], box[0]), (box[3], box[2]), (255, 0, 0), 2)
+    #         print("(", box[1], ", ", box[0], ")")
+    #         print("(", box[3], ", ", box[2], ")")
+    # cv2.imshow("preview", img)
+    # key = cv2.waitKey(10000)
     #if key & 0xFF == ord('q'):
         #break
