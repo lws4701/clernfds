@@ -75,6 +75,7 @@ class TCPServer:
                         self.c.send(response.encode('utf-8'))
                     writeFile.close()
                 print("\n%s Received" % fileHeader)
+                return fileHeader
                 # zipFile = archive.Archive(fileHeader) TODO: Possibly add extraction to method
                 # zipFile.extract()
 
