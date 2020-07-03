@@ -1,5 +1,7 @@
 #Dependencies
 /Server/venv/Lib/site-packages/
 /Client/venv/Lib/site-packages/
+/Client/venv_mac/site-packages/
+/Server/venv_mac/lib/python3.8/site-packages/
 .DS_Store
 .vscode

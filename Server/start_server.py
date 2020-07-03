@@ -14,12 +14,16 @@ def main():
     try:
         while True:
             clern_server.connect()
+            if not (os.path.exists("./archives")):
+                os.mkdir("archives")
+            os.chdir('archives')
             currentArchiveName = clern_server.receiveFile()
-            currentFrameArchive = Archive('archives/' + currentArchiveName)
+            currentFrameArchive = Archive(currentArchiveName)
             currentFrameArchive.extract()
             currentFrameArchive.close()
+            os.remove(currentArchiveName)
             fileDir = currentFrameArchive.nameWOExtension
-            fileList = []
+            fileList = os.listdir(fileDir)
             fileList = [fileDir + x for x in fileList]
             """for currentFile in fileList:
                 currentFrames.append(cv2.imread(currentFile))
