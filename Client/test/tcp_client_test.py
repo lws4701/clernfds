@@ -4,9 +4,9 @@ from Client.archive import Archive
 
 def test():
     client = TCPClient()
-    client.connect()
-    client.sendFile("img1.jpg")
-    client.close()
+    # client.connect()
+    # client.sendFile("img1.jpg")
+    # client.close()
 
     imgZip = Archive()
     for i in range(1, 6):
