@@ -1,41 +1,45 @@
-from zipfile import ZipFile
-
-from Server.tcp_server import TCPServer
-from Server.archive import Archive
+'''
+File Name: start_server.py
+Authors: CLERN Development Team
+Last Modified: 3 Jul 2020
+Description: This file acts as the mainloop for the full CLERN server
+'''
+from Server.file_server import start_server
+from Server.tf_detect import DetectorAPI
+from multiprocessing import Process
 import os
-import cv2
-import sys
 
+DATAMODEL = "test/faster_rcnn_inception_v2_coco/frozen_inference_graph.pb"
+DETECTTHRESHOLD = 0.7
+
+def listdir_nohidden(path):
+    '''For listing only visible files'''
+    fileList = []
+    for f in os.listdir(path):
+        if not f.startswith(('.')) and f.endswith('.zip'):
+            fileList.append(f)
+    return fileList
 
 def main():
-    clern_server = TCPServer()
-    clern_server.connect()
-    currentFrames = []
-    try:
-        while True:
-            clern_server.connect()
-            if not (os.path.exists("./archives")):
-                os.mkdir("archives")
-            os.chdir('archives')
-            currentArchiveName = clern_server.receiveFile()
-            currentFrameArchive = Archive(currentArchiveName)
-            currentFrameArchive.extract()
-            currentFrameArchive.close()
-            os.remove(currentArchiveName)
-            fileDir = currentFrameArchive.nameWOExtension
-            fileList = os.listdir(fileDir)
-            fileList = [fileDir + x for x in fileList]
-            """for currentFile in fileList:
-                currentFrames.append(cv2.imread(currentFile))
-                os.remove(currentFile)"""
-            # personCoords = [] (frameName, coordinates)
-            # for frame in currentFrames:
-                # personCoords.append(detectPerson(frame))"""
-    except Exception as err_type:
-        print("\n***TCP SERVER %s error thrown during image processing ***" % err_type)
-        clern_server.close()
-        sys.exit()
+    file_server = Process(target=start_server)
+    # Start the file server
+    print("Readying model...")
+    dapi = DetectorAPI(path_to_ckpt=DATAMODEL)
+    print("Model ready...")
+    file_server.start()
 
+    threshold = DETECTTHRESHOLD
 
-if __name__ == '__main__':
+    while not(os.path.exists('./archives')):
+        pass
+    os.chdir('./archives')
+    while len(listdir_nohidden('.')) == 0:
+        pass
+    while True:
+            dir_list = sorted(listdir_nohidden('.'))
+            frame_packet = sorted(listdir_nohidden(dir_list[0]))
+            current_coords = dapi.processPacket(frame_packet)
+            print(current_coords)
+
+if __name__ == "__main__":
     main()

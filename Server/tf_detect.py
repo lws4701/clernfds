@@ -73,7 +73,7 @@ class DetectorAPI:
         box_dict = {}
 
         for frame in packet:
-            frame_path = 'img/' + frame
+            frame_path = 'archives/' + frame
             cap = cv2.VideoCapture(frame_path)
             r, image = cap.read()
             img = cv2.resize(image, (1280, 720))
