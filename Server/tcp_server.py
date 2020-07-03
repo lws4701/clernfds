@@ -1,6 +1,6 @@
 import socket
 import os
-import Server.archive
+import archive
 
 
 class TCPServer:
@@ -61,7 +61,7 @@ class TCPServer:
         try:
             if self.c is not None:
                 if not (os.path.exists("./archives")):
-                    os.mkdir("archives")
+                    os.mkdir("archives", 755)
                 fileHeader = self.c.recv(512).decode().strip()
                 response = fileHeader.upper() + " RECEIVED"
                 with open("archives/" + fileHeader, "wb") as writeFile:

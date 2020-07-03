@@ -9,6 +9,7 @@ import sys
 
 def main():
     clern_server = TCPServer()
+    clern_server.connect()
     currentFrames = []
     try:
         while True:
@@ -26,7 +27,6 @@ def main():
             # personCoords = [] (frameName, coordinates)
             # for frame in currentFrames:
                 # personCoords.append(detectPerson(frame))"""
-
     except Exception as err_type:
         print("\n***TCP SERVER %s error thrown during image processing ***" % err_type)
         clern_server.close()
