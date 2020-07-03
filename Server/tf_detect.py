@@ -76,7 +76,7 @@ class DetectorAPI:
             frame_path = 'archives/' + frame
             cap = cv2.VideoCapture(frame_path)
             r, image = cap.read()
-            img = cv2.resize(image, (1280, 720))
+            img = cv2.resize(image, (640, 480))
             coords = self.processFrame(img)
             #print(coords)
             box_dict[frame] = coords
