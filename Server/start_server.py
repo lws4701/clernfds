@@ -1,5 +1,7 @@
-from tcp_server import TCPServer
-from archive import Archive
+from zipfile import ZipFile
+
+from Server.tcp_server import TCPServer
+from Server.archive import Archive
 import os
 import cv2
 import sys
@@ -11,11 +13,22 @@ def main():
     currentFrames = []
     try:
         while True:
+            clern_server.connect()
             currentArchiveName = clern_server.receiveFile()
-            currentFrameArchive = Archive(currentArchiveName)
+            currentFrameArchive = Archive('archives/' + currentArchiveName)
             currentFrameArchive.extract()
+            currentFrameArchive.close()
+            fileDir = currentFrameArchive.nameWOExtension
+            fileList = []
+            fileList = [fileDir + x for x in fileList]
+            """for currentFile in fileList:
+                currentFrames.append(cv2.imread(currentFile))
+                os.remove(currentFile)"""
+            # personCoords = [] (frameName, coordinates)
+            # for frame in currentFrames:
+                # personCoords.append(detectPerson(frame))"""
     except Exception as err_type:
-        print("\n***TCP SERVER %s error thrown during image processing ***")
+        print("\n***TCP SERVER %s error thrown during image processing ***" % err_type)
         clern_server.close()
         sys.exit()
 

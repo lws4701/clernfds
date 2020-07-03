@@ -15,14 +15,14 @@ class Archive:
     def __init__(self, fileName=str(abs(hash(datetime.now()))) + '.zip'):
         self.fileName = fileName
         self.nameWOExtension = fileName.replace('.zip', '')
-        self.zipArchive = ZipFile(fileName, 'w')
+        self.zipArchive = ZipFile(fileName, 'r')
 
-    def add(self, fileName):
+    """def add(self, fileName):
         try:
             self.zipArchive.write(fileName)
         except:
             print("Unable to add %s to %s" %
-                  (fileName, self.zipArchive.filename))
+                  (fileName, self.zipArchive.filename))"""
 
     def extract(self):
         os.mkdir(self.nameWOExtension)
