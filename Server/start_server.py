@@ -12,13 +12,15 @@ import os
 DATAMODEL = "test/faster_rcnn_inception_v2_coco/frozen_inference_graph.pb"
 DETECTTHRESHOLD = 0.7
 
+
 def listdir_nohidden(path):
     '''For listing only visible files'''
     fileList = []
     for f in os.listdir(path):
-        if not f.startswith(('.')) and f.endswith('.zip'):
+        if not f.startswith(('.')) and not(f.endswith('.zip')):
             fileList.append(f)
     return fileList
+
 
 def main():
     file_server = Process(target=start_server)
@@ -36,10 +38,11 @@ def main():
     while len(listdir_nohidden('.')) == 0:
         pass
     while True:
-            dir_list = sorted(listdir_nohidden('.'))
-            frame_packet = sorted(listdir_nohidden(dir_list[0]))
-            current_coords = dapi.processPacket(frame_packet)
-            print(current_coords)
+        dir_list = sorted(listdir_nohidden('.'))
+        frame_packet = sorted(listdir_nohidden(dir_list[0]))
+        current_coords = dapi.processPacket(frame_packet)
+        print(current_coords)
+
 
 if __name__ == "__main__":
     main()
