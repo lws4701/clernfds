@@ -62,6 +62,7 @@ class TCPServer:
             if self.c is not None:
                 fileHeader = self.c.recv(512).decode().strip()
                 response = fileHeader.upper() + " RECEIVED"
+                print(fileHeader)
                 with open(fileHeader, "wb") as writeFile:
                     while True:
                         bytesRead = self.c.recv(1024)
@@ -72,10 +73,9 @@ class TCPServer:
                         # TCP Response
                         self.c.send(response.encode('utf-8'))
                     writeFile.close()
+                self.connect()
                 print("\n%s Received" % fileHeader)
                 return fileHeader
-                # zipFile = archive.Archive(fileHeader) TODO: Possibly add extraction to method
-                # zipFile.extract()
 
         except Exception as err_type:
             print(
