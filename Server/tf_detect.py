@@ -23,7 +23,6 @@ class DetectorAPI:
 
         self.default_graph = self.detection_graph.as_default()
         self.sess = tf.compat.v1.Session(graph=self.detection_graph)
-
         # Definite input and output Tensors for detection_graph
         self.image_tensor = self.detection_graph.get_tensor_by_name('image_tensor:0')
         # Each box represents a part of the image where a particular object was detected.
