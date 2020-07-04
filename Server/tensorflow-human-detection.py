@@ -87,14 +87,14 @@ class DetectorAPI:
         self.sess.close()
         self.default_graph.close()
 
-
-if __name__ == "__main__":
-    model_path = 'test/faster_rcnn_inception_v2_coco/frozen_inference_graph.pb'
-    odapi = DetectorAPI(path_to_ckpt=model_path)
-    threshold = 0.7
-    frame_packet = os.listdir('img')
-    packet_coords = odapi.processPacket(frame_packet)
-    print(packet_coords)
+#
+# if __name__ == "__main__":
+#     model_path = 'test/faster_rcnn_inception_v2_coco/frozen_inference_graph.pb'
+#     odapi = DetectorAPI(path_to_ckpt=model_path)
+#     threshold = 0.7
+#     frame_packet = os.listdir('img')
+#     packet_coords = odapi.processPacket(frame_packet)
+#     print(packet_coords)
     # for frame in frame_packet:
     #     frame = 'img/' + frame
     #     cap = cv2.VideoCapture(frame)
