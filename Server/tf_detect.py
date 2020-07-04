@@ -34,7 +34,7 @@ class DetectorAPI:
         self.detection_classes = self.detection_graph.get_tensor_by_name('detection_classes:0')
         self.num_detections = self.detection_graph.get_tensor_by_name('num_detections:0')
 
-    def processFrame(self, image):
+    def processFrame(self, image, threshold):
         # Expand dimensions since the trained_model expects images to have shape: [1, None, None, 3]
         image_np_expanded = np.expand_dims(image, axis=0)
         # Actual detection.
@@ -69,15 +69,15 @@ class DetectorAPI:
 
         #return boxes_list, frame_scores[0].tolist(), [int(x) for x in frame_classes[0].tolist()], int(frame_num[0])
 
-    def processPacket(self, packet):
+    def processPacket(self, packet, threshold):
         box_dict = {}
 
         for frame in packet:
-            frame_path = 'archives/' + frame
+            frame_path = './' + frame
             cap = cv2.VideoCapture(frame_path)
             r, image = cap.read()
             img = cv2.resize(image, (640, 480))
-            coords = self.processFrame(img)
+            coords = self.processFrame(img, threshold)
             #print(coords)
             box_dict[frame] = coords
 

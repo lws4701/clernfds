@@ -8,7 +8,7 @@ from Server.file_server import start_server
 from Server.tf_detect import DetectorAPI
 from multiprocessing import Process
 import os
-
+import time
 DATAMODEL = "test/faster_rcnn_inception_v2_coco/frozen_inference_graph.pb"
 DETECTTHRESHOLD = 0.7
 
@@ -30,19 +30,23 @@ def main():
     print("Model ready...")
     file_server.start()
 
-    threshold = DETECTTHRESHOLD
-
     while not(os.path.exists('./archives')):
         pass
     os.chdir('./archives')
-    while len(listdir_nohidden('.')) == 0:
-        pass
+    parent_dir = os.getcwd()
     while True:
-        dir_list = sorted(listdir_nohidden('.'))
-        frame_packet = sorted(listdir_nohidden(dir_list[0]))
-        current_coords = dapi.processPacket(frame_packet)
-        print(current_coords)
-
+        while True and len(listdir_nohidden('.')) != 0:
+            dir_list = sorted(listdir_nohidden('.'))
+            os.chdir(dir_list[0])
+            frame_packet = sorted(listdir_nohidden('.'))
+            print(frame_packet)
+            current_coords = dapi.processPacket(frame_packet, DETECTTHRESHOLD)
+            print(current_coords)
+            #time.sleep(60)
+            [os.remove(x) for x in frame_packet]
+            os.chdir(parent_dir)
+            os.rmdir(dir_list[0])
+        pass
 
 if __name__ == "__main__":
     main()
