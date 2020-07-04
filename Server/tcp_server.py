@@ -60,11 +60,9 @@ class TCPServer:
         """Receive file from client"""
         try:
             if self.c is not None:
-                if not (os.path.exists("./archives")):
-                    os.mkdir("archives", 755)
                 fileHeader = self.c.recv(512).decode().strip()
                 response = fileHeader.upper() + " RECEIVED"
-                with open("archives/" + fileHeader, "wb") as writeFile:
+                with open(fileHeader, "wb") as writeFile:
                     while True:
                         bytesRead = self.c.recv(1024)
                         if not bytesRead:

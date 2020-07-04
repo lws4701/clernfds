@@ -3,3 +3,4 @@
 /Client/venv/Lib/site-packages/
 .DS_Store
 .vscode
+/venv_mac/lib/
