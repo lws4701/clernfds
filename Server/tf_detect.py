@@ -23,6 +23,7 @@ class DetectorAPI:
 
         self.default_graph = self.detection_graph.as_default()
         self.sess = tf.compat.v1.Session(graph=self.detection_graph)
+
         # Definite input and output Tensors for detection_graph
         self.image_tensor = self.detection_graph.get_tensor_by_name('image_tensor:0')
         # Each box represents a part of the image where a particular object was detected.
@@ -33,11 +34,11 @@ class DetectorAPI:
         self.detection_classes = self.detection_graph.get_tensor_by_name('detection_classes:0')
         self.num_detections = self.detection_graph.get_tensor_by_name('num_detections:0')
 
-    def processFrame(self, image, threshold):
+    def processFrame(self, image):
         # Expand dimensions since the trained_model expects images to have shape: [1, None, None, 3]
         image_np_expanded = np.expand_dims(image, axis=0)
         # Actual detection.
-        # start_time = time.time()
+        start_time = time.time()
         (frame_boxes, frame_scores, frame_classes, frame_num) = self.sess.run(
             [self.detection_boxes, self.detection_scores, self.detection_classes, self.num_detections],
             feed_dict={self.image_tensor: image_np_expanded})
@@ -51,7 +52,6 @@ class DetectorAPI:
                         int(frame_boxes[0, i, 2] * im_height),
                         int(frame_boxes[0, i, 3]*im_width))
 
-        threshold = 0.7
         scores = frame_scores[0].tolist()
         classes = [int(x) for x in frame_classes[0].tolist()]
         box_coords = []
@@ -63,21 +63,21 @@ class DetectorAPI:
                 cv2.rectangle(image, (box[1], box[0]), (box[3], box[2]), (255, 0, 0), 2)
                 box_coords.append([(box[1], box[0]), (box[3], box[0]), (box[1], box[2]), (box[3], box[2])])
 
-        # end_time = time.time()
-        # print("Elapsed Time:", end_time - start_time)
+        end_time = time.time()
+        print("Elapsed Time:", end_time - start_time)
         return box_coords
 
         #return boxes_list, frame_scores[0].tolist(), [int(x) for x in frame_classes[0].tolist()], int(frame_num[0])
 
-    def processPacket(self, packet, threshold):
+    def processPacket(self, packet):
         box_dict = {}
 
         for frame in packet:
-            frame_path = './' + frame
+            frame_path = 'img/' + frame
             cap = cv2.VideoCapture(frame_path)
             r, image = cap.read()
-            img = cv2.resize(image, (640, 480))
-            coords = self.processFrame(img, threshold)
+            img = cv2.resize(image, (1280, 720))
+            coords = self.processFrame(img)
             #print(coords)
             box_dict[frame] = coords
 
@@ -87,14 +87,14 @@ class DetectorAPI:
         self.sess.close()
         self.default_graph.close()
 
-#
-# if __name__ == "__main__":
-#     model_path = 'test/faster_rcnn_inception_v2_coco/frozen_inference_graph.pb'
-#     odapi = DetectorAPI(path_to_ckpt=model_path)
-#     threshold = 0.7
-#     frame_packet = os.listdir('img')
-#     packet_coords = odapi.processPacket(frame_packet)
-#     print(packet_coords)
+
+if __name__ == "__main__":
+    model_path = 'test/faster_rcnn_inception_v2_coco/frozen_inference_graph.pb'
+    odapi = DetectorAPI(path_to_ckpt=model_path)
+    threshold = 0.7
+    frame_packet = os.listdir('img')
+    packet_coords = odapi.processPacket(frame_packet)
+    print(packet_coords)
     # for frame in frame_packet:
     #     frame = 'img/' + frame
     #     cap = cv2.VideoCapture(frame)
