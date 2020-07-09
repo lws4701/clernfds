@@ -26,7 +26,8 @@ class DetectorAPI:
             # For viewing the background subtracted photo
             #cv.imshow(self.frame_array[current_frame])
 
-    def create_mhi(self) -> bytes:
+
+    def create_mhi(self) -> bytes: # May not be necessary when using Noah's motion detection module
         '''
         Creates the motion history image of a set of frames
         :return current_mhi: a motion history image of the set of frames
