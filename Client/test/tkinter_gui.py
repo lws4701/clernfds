@@ -2,16 +2,31 @@ import sys
 import tkinter as tk
 from time import sleep
 from PIL import ImageTk, Image
+from concurrent.futures.thread import ThreadPoolExecutor
+from concurrent.futures.process import ProcessPoolExecutor
 import threading
-import multiprocessing
+from multiprocessing import Process
 import cv2
 import json
 import phonenumbers
+from Client.tcp_client import TCPClient
 import os
 
 
 class CLERNFDS(tk.Frame):
+    """
+    This is what the client will be interacting with primarily
+    Needs to be the last thing running since the threading on tkinter is horrible and my solution is hacky
+    GUI will hang until everything is done processing
+
+    """
+
     def __init__(self, videoStream, outputPath):
+        """
+        Initializes the entire GUI pulling json data from contacts and writing to cameras to display current index.
+        :param videoStream:
+        :param outputPath:
+        """
         # I put this inside of the class because there is no real use of inheritance in this application of tkinter
         parent = tk.Tk()
         parent.resizable(0, 0)
@@ -74,15 +89,26 @@ class CLERNFDS(tk.Frame):
         # MULTITHREADING
         # start a thread that constantly pools the video for
         # the most recently read frame
-        self.stopEvent = threading.Event()
-        self.thread = threading.Thread(target=self.videoLoop, args=())
-        self.thread.start()
+        # self.stopEvent = threading.Event()
+        # self.thread = threading.Thread(target=self.videoLoop, args=(), daemon=True)
+        # self.thread.start()
 
+        # For other runtime checks to check when available to call information
+        self.running = False
         # set a callback to handle when the window is closed
         self.root.wm_title("CLERN Fall Detection System")
         self.root.wm_protocol("WM_DELETE_WINDOW", self.onClose)
 
+    def loop(self, n=0):
+        self.running = True
+        tk.mainloop()
+
     def generateCameraIndexes(self):
+        """
+        Gets all accessible camera indexes to a max of ten and puts them in a dict
+        under self.cameras["indexes"]
+        :return:
+        """
         # checks the first 10 indexes.
         index = 0
         arr = []
@@ -94,9 +120,26 @@ class CLERNFDS(tk.Frame):
                 cap.release()
             index += 1
             i -= 1
-        self.cameras["index"] = arr
+        self.cameras["indexes"] = arr
+
+    def updateIndexDropDown(self):
+        self.generateCameraIndexes()
+        print(self.cameras["indexes"])
+        first = tk.StringVar(self.root)
+        if len(self.cameras["indexes"]) == 0:
+            first.set("0")
+            self.selectedIndex = first.get()
+            self.indexDropdown = tk.OptionMenu(self.root, first, None,
+                                               command=lambda val: self.updateSelectedIndex(val))
+        else:
+            first.set(self.cameras["indexes"][0])
+            self.selectedIndex = first.get()
+            self.indexDropdown = tk.OptionMenu(self.root, first, *self.cameras['indexes'],
+                                               command=lambda val: self.updateSelectedIndex(val))
+        self.indexDropdown.grid(row=6, column=0, padx=5, sticky="w")
         while True:
             try:
+                self.cameras["index"] = first.get()
                 with open("cameras.txt", 'w') as json_file:
                     json.dump(self.cameras, json_file)
                     print("Indexes Updated")
@@ -104,22 +147,6 @@ class CLERNFDS(tk.Frame):
                 break
             except Exception as e:
                 print("***Error: File Currently Open*** errmsg=" % e)
-
-    def updateIndexDropDown(self):
-        self.generateCameraIndexes()
-        print(self.cameras["index"])
-        first = tk.StringVar(self.root)
-        if len(self.cameras["index"]) == 0:
-            first.set("NULL")
-            self.selectedIndex = first.get()
-            self.indexDropdown = tk.OptionMenu(self.root, first, None,
-                                               command=lambda val: self.updateSelectedIndex(val))
-        else:
-            first.set(self.cameras["index"][0])
-            self.selectedIndex = first.get()
-            self.indexDropdown = tk.OptionMenu(self.root, first, *self.cameras['index'],
-                                               command=lambda val: self.updateSelectedIndex(val))
-        self.indexDropdown.grid(row=6, column=0, padx=5, sticky="w")
 
     def updateSelectedIndex(self, val):
         self.selectedIndex = val
@@ -156,7 +183,7 @@ class CLERNFDS(tk.Frame):
                         json_file.close()
                     break
                 except Exception as e:
-                    print("***Error: File Currently Open*** errmsg=" % e)
+                    print("***Error: File Currently Open*** errmsg=%s" % e)
             self.updateContacts()
         else:
             print("Invalid Number")
@@ -178,7 +205,7 @@ class CLERNFDS(tk.Frame):
                     json_file.close()
                 break
             except Exception as e:
-                print("***Error: File Currently Open*** errmsg=" % e)
+                print("***Error: File Currently Open*** errmsg=%s" % e)
 
         self.updateContacts()
 
@@ -194,6 +221,9 @@ class CLERNFDS(tk.Frame):
                 print("***Error: File Currently Open*** errmsg=" % e)
         self.updateContactDropDown()
 
+    """
+    Commenting this out because it messes with some functionality and it is a pain.
+    
     def videoLoop(self):
         try:
             while not self.stopEvent.is_set():
@@ -211,38 +241,67 @@ class CLERNFDS(tk.Frame):
                     self.panel = tk.Label(image=image)
                     self.panel.image = image
                     self.panel.grid(row=1, rowspan=100, column=2, padx=20, pady=5)
-
                 # otherwise, simply update the panel
                 else:
                     self.panel.configure(image=image)
                     self.panel.image = image
                 cv2.waitKey(30)
             self.vs.release()
-
         except Exception as e:
             print('***CLERN FDS GUI*** - "[%s] Error while running videoLoop"' % e)
+    """
 
     def onClose(self):
         # set the stop event, cleanup the camera, and allow the rest of
         # the quit process to continue
         print("CLERN FDS closing...")
-        self.stopEvent.set()
+        self.running = False
+        # self.stopEvent.set()
         # GUI Hangs until the program it is running in comes to an end
         self.root.quit()
 
 
-def processTest():
-    for i in range(11):
-        sleep(1)
-        print(i)
+def runCheck(gui, client):
+    """
+    Concurrent runtime loop that runs alongside the CLERN GUI
+    :param gui:
+    :param client:
+    :return:
+    """
+    pastContacts = None
+    while True:
+        sleep(1)  # Checks for changes every 5 seconds
+        print("iteration")
+        while gui.running:
+            sleep(1)
+            pastContacts = sendContacts(pastContacts, gui.contactList, client)
+
+
+def sendContacts(pastContacts, currContacts, client):
+    """
+    When the contact list changes the server gets an updated copy of it.
+    :param pastContacts:
+    :param currContacts:
+    :param client:
+    :return:
+    """
+    if currContacts != pastContacts:
+        client.sendFile("contacts.txt")
+        client.close()
+        client.connect()
+    return currContacts
 
 
 if __name__ == "__main__":
     vs = cv2.VideoCapture("test.mp4")
+    client = TCPClient()
+    client.connect()
     main = CLERNFDS(vs, "./")
-    p = multiprocessing.Process(target=processTest)
-    p.start()
-    main.mainloop()
-    p.terminate()
-    sleep(0.1)
-    print(p, p.is_alive())
+    t = ThreadPoolExecutor().submit(runCheck, [main, client])
+    main.loop()
+
+    # client.sendFile("contacts.txt")
+    #
+    # t = ThreadPoolExecutor().submit(client.sendFile, "contacts.txt")
+
+    # print(p, p.is_alive())
