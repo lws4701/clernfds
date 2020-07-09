@@ -1,21 +1,24 @@
 import socket
-import os
-import Server.archive
+from concurrent.futures import ThreadPoolExecutor
 
 
 class TCPServer:
     """
     TCP Server Side of the connection between Server and host
-    You need to explicitly call connect to be able to receive data
-    Receive does not implicitly close the connection so it can be called over and over
+    Running listenLoop Prepares the server to listen to all possible receive files.
+    Run listenLoop on seperate thread.
     """
-
     host = None  # server address eg.) 127.0.0.1 (local)
     port = None  # port number eg.) 1025–65535
-    c = None  # client socket
-    cAddress = None  # client address
+    s = None
+    received = []
 
     def __init__(self, host: str = socket.gethostname(), port: int = 8080):
+        """
+        Connects this server object to the host IP and Port
+        :param host: //IP
+        :param port:
+        """
         print("Server Online")
         if 1025 < port < 65535:
             self.port = port
@@ -25,74 +28,74 @@ class TCPServer:
                 "*** TCP Server - {} is out of bounds and the default port 8080 has been used ***".format(port))
         # no efficient way to check host it just wont work if wrong.
         self.host = host
+        self.s = socket.socket()
+        self.s.bind((self.host, self.port))
 
-    def connect(self):
-        """Connect client and host"""
+    def listenLoop(self):
+        """
+        Main Functionality Loop.
+        Run in separate thread in the start_server file.
+        :return: NULL
+        """
         try:
-            s = socket.socket()
-            s.bind((self.host, self.port))
-            s.listen()
-            self.c, self.cAddress = s.accept()
-            print("Connection from: {}".format(str(self.cAddress)))
+            while True:
+                self.s.listen()
+                c, cAddress = self.s.accept()
+                print("Connection from: {}".format(str(cAddress)))
+                ThreadPoolExecutor().submit(self.receiveFile, c)  # Receives file while listening to next file.
         except Exception as err_type:
             print(
-                "\n*** TCP Server \"{}\" error while connecting client to server***\n".format(err_type))
+                "*** TCP Server \"{}\" error while connecting client to server***".format(err_type))
 
-    def receive(self):
-        """Receive data between and host"""
+    def receiveFile(self, c):
+        """
+        Receive file from client
+        :param c: //Client
+        :return: NULL // appends to received that can be dynamically checked
+        """
         try:
-            if self.c is not None:
+            if c is not None:
+                fileHeader = c.recv(512).decode().strip()
+                response = fileHeader.upper() + " RECEIVED"
+                with open(fileHeader, "wb") as writeFile:
+                    while True:
+                        bytesRead = c.recv(1024)
+                        if not bytesRead:
+                            break
+                        writeFile.write(bytesRead)
+                        #print("+", end="")
+                        # TCP Response
+                        c.send(response.encode('utf-8'))
+                    writeFile.close()
+                print("%s Received" % fileHeader)
+                c.close()
+                self.received.append(fileHeader)
+        except Exception as err_type:
+            print(
+                "*** TCP SERVER \"%s\" error while trying to receive file ***" % err_type)
+
+    # Antiquated..
+    def receiveTEST(self, c):
+        """
+        ***ANTIQUATED***
+        Receive data between and host
+        """
+        try:
+            if c is not None:
                 while True:
-                    data = self.c.recv(1024).decode('utf-8')
+                    data = c.recv(1024).decode('utf-8')
                     if not data:
                         break
                     print('From online user: ' + data)
                     data = data.upper()
-                    self.c.send(data.encode('utf-8'))
+                    c.send(data.encode('utf-8'))
+                    c.close()
             else:
                 print(
-                    "\n*** TCP Server \"{}\" client has not been connected  to server***\n")
+                    "*** TCP Server \"{}\" client has not been connected  to server***")
         except Exception as err_type:
             print(
-                "\n*** TCP Server \"{}\" error while trying to send***\n".format(err_type))
-
-    def receiveFile(self):
-        """Receive file from client"""
-        try:
-            if self.c is not None:
-                fileHeader = self.c.recv(512).decode().strip()
-                response = fileHeader.upper() + " RECEIVED"
-                print(fileHeader)
-                with open(fileHeader, "wb") as writeFile:
-                    while True:
-                        bytesRead = self.c.recv(1024)
-                        if not bytesRead:
-                            break
-                        writeFile.write(bytesRead)
-                        print("+", end="")
-                        # TCP Response
-                        self.c.send(response.encode('utf-8'))
-                    writeFile.close()
-                self.connect()
-                print("\n%s Received" % fileHeader)
-                return fileHeader
-
-        except Exception as err_type:
-            print(
-                "\n*** TCP SERVER \"%s\" error while trying to receive file ***" % err_type)
-
-    def close(self):
-        """ Close connection between the Server and the host"""
-        try:
-            if self.c is not None:
-                self.c.close()
-                c = None
-                print("Server Offline")
-            else:
-                print("\n*** TCP Server - Already Disconnected ***\n")
-        except Exception as err_type:
-            print(
-                "\n*** TCP Server \"{}\" error while closing connection***\n".format(err_type))
+                "*** TCP Server \"{}\" error while trying to send***".format(err_type))
 
     def data(self):
         print("Host is: {} and the port is {}".format(self.host, self.port))

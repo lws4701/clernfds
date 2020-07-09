@@ -30,7 +30,7 @@ class TCPClient:
             print("Client Connected")
         except Exception as err_type:
             print(
-                "\n*** TCP Client \"{}\" error while connecting to server***".format(err_type))
+                "*** TCP Client \"{}\" error while connecting to server***".format(err_type))
 
     def send(self, data=None):
         """Send data between client and host"""
@@ -51,10 +51,11 @@ class TCPClient:
                 print("*** TCP Client - Connection between server has not been made ***")
         except Exception as err_type:
             print(
-                "\n*** TCP Client \"{}\" error while trying to send***".format(err_type))
+                "*** TCP Client \"{}\" error while trying to send***".format(err_type))
 
     def sendFile(self, fileName):
         """Send file from client to server"""
+        self.connect()
         try:
             if self.s is not None:
                 if fileName is None:
@@ -72,27 +73,28 @@ class TCPClient:
                             bytesRead = sendingFile.read(1024)
                             self.s.sendall(bytesRead)
                             sent += 1024
-                            print("+", end="")
+                            #print("+", end="")
                             # TCP Response
                             response = self.s.recv(1024).decode('utf-8')
                     sendingFile.close()
-                    print("\nServer Response = %s" % response)
+                    print("Server Response = %s" % response)
                     # os.remove(fileName)
         except Exception as err_type:
-            print("\n***TCP Client \"%s\" error while trying to send ***" % err_type)
+            print("***TCP Client \"%s\" error while trying to send ***" % err_type)
+        self.close()
 
     def close(self):
         """ Close connection between the client and the host"""
         try:
             if self.s is not None:
                 self.s.close()
-                s = None
+                self.s = None
                 print("Client Disconnected")
             else:
-                print("\n*** TCP Client - Already Disconnected ***\n")
+                print("*** TCP Client - Already Disconnected ***\n")
         except Exception as err_type:
             print(
-                "\n*** TCP Client \"{}\" error while closing connection***".format(err_type))
+                "*** TCP Client \"{}\" error while closing connection***".format(err_type))
 
     def data(self):
         print("Host is: {} and the port is {}".format(self.host, self.port))
