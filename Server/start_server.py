@@ -39,10 +39,8 @@ def main():
             dir_list = sorted(listdir_nohidden('.'))
             os.chdir(dir_list[0])
             frame_packet = sorted(listdir_nohidden('.'))
-            print(frame_packet)
             current_coords = dapi.processPacket(frame_packet, DETECTTHRESHOLD)
             print(current_coords)
-            #time.sleep(60)
             [os.remove(x) for x in frame_packet]
             os.chdir(parent_dir)
             os.rmdir(dir_list[0])

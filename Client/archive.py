@@ -10,8 +10,6 @@ import os
 
 
 class Archive:
-    fileName = None
-
     def __init__(self, fileName=str(abs(hash(datetime.now()))) + '.zip'):
         self.fileName = fileName
         self.nameWOExtension = fileName.replace('.zip', '')
@@ -33,6 +31,9 @@ class Archive:
     def close(self):
         """Ryan - Need this to send a valid .zip"""
         self.zipArchive.close()
+
+    def getName(self):
+        return self.fileName
 
     def open(self):
         """
