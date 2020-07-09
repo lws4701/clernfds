@@ -21,17 +21,19 @@ class CLERNFDS(tk.Frame):
 
     """
 
-    def __init__(self, videoStream, outputPath):
+    def __init__(self, videoStream, client, outputPath):
         """
         Initializes the entire GUI pulling json data from contacts and writing to cameras to display current index.
-        :param videoStream:
-        :param outputPath:
+        //TODO Add a function that 1.) takes the selected index 2.) closes the threaded video 3.) Changes video output
+        //TODO on gui to a new created thread and the video output on actual frame deliverance
+        :param videoStream: :param outputPath:
         """
         # I put this inside of the class because there is no real use of inheritance in this application of tkinter
         parent = tk.Tk()
         parent.resizable(0, 0)
-
         super(CLERNFDS, self).__init__(parent)
+        # Give class access to client
+        self.client = client
         # List of Contacts
         self.contactList = dict()
         # store the video stream object and output path, then initialize
@@ -89,19 +91,13 @@ class CLERNFDS(tk.Frame):
         # MULTITHREADING
         # start a thread that constantly pools the video for
         # the most recently read frame
-        # self.stopEvent = threading.Event()
-        # self.thread = threading.Thread(target=self.videoLoop, args=(), daemon=True)
-        # self.thread.start()
+        self.stopEvent = threading.Event()
+        self.thread = threading.Thread(target=self.videoLoop, args=(), daemon=True)
+        self.thread.start()
 
-        # For other runtime checks to check when available to call information
-        self.running = False
         # set a callback to handle when the window is closed
         self.root.wm_title("CLERN Fall Detection System")
         self.root.wm_protocol("WM_DELETE_WINDOW", self.onClose)
-
-    def loop(self, n=0):
-        self.running = True
-        tk.mainloop()
 
     def generateCameraIndexes(self):
         """
@@ -123,6 +119,10 @@ class CLERNFDS(tk.Frame):
         self.cameras["indexes"] = arr
 
     def updateIndexDropDown(self):
+        """
+        Updates the dropdown selection of indexes
+        :return:
+        """
         self.generateCameraIndexes()
         print(self.cameras["indexes"])
         first = tk.StringVar(self.root)
@@ -149,9 +149,18 @@ class CLERNFDS(tk.Frame):
                 print("***Error: File Currently Open*** errmsg=" % e)
 
     def updateSelectedIndex(self, val):
+        """
+        Helper function to updateIndexDropDown
+        :param val:
+        :return:
+        """
         self.selectedIndex = val
 
     def updateContactDropDown(self):
+        """
+        Updates the tkinter contact removal dropdown
+        :return:
+        """
         first = tk.StringVar(self.root)
         if len(self.contactList["contacts"]) == 0:
             first.set("---None---")
@@ -166,9 +175,19 @@ class CLERNFDS(tk.Frame):
         self.contactDropdown.grid(row=4, column=0, padx=5, sticky="w")
 
     def updateSelectedContact(self, val):
+        """
+        Helper function to updateContactDropDown
+        :param val:
+        :return:
+        """
         self.selectedContact = int(val)
 
     def addContact(self):
+        """
+        Validates phone number then adds it to the contacts.txt
+        then updates the contact dropdown
+        :return:
+        """
         contact = self.contactEntry.get()
         contact = phonenumbers.parse(contact, "US")
 
@@ -191,6 +210,10 @@ class CLERNFDS(tk.Frame):
             self.contactEntry.insert(0, "INVALID #")
 
     def deleteContact(self):
+        """
+        Deletes contact selected on the contact dropdown
+        :return:
+        """
         print(self.selectedContact)
         print(self.contactList['contacts'])
         if self.selectedContact == "---None---":
@@ -210,6 +233,10 @@ class CLERNFDS(tk.Frame):
         self.updateContacts()
 
     def updateContacts(self):
+        """
+        Pulls the contacts from the contacts.txt and loads them onto memory
+        :return:
+        """
         while True:
             try:
                 with open('contacts.txt') as json_file:
@@ -221,10 +248,11 @@ class CLERNFDS(tk.Frame):
                 print("***Error: File Currently Open*** errmsg=" % e)
         self.updateContactDropDown()
 
-    """
-    Commenting this out because it messes with some functionality and it is a pain.
-    
     def videoLoop(self):
+        """
+        Pulls video from the video stream from given index selected
+        :return:
+        """
         try:
             while not self.stopEvent.is_set():
                 # grab the frame from the video
@@ -249,14 +277,17 @@ class CLERNFDS(tk.Frame):
             self.vs.release()
         except Exception as e:
             print('***CLERN FDS GUI*** - "[%s] Error while running videoLoop"' % e)
-    """
 
     def onClose(self):
+        """
+        Essentially the Destructor Call
+        :return:
+        """
         # set the stop event, cleanup the camera, and allow the rest of
         # the quit process to continue
         print("CLERN FDS closing...")
         self.running = False
-        # self.stopEvent.set()
+        self.stopEvent.set()
         # GUI Hangs until the program it is running in comes to an end
         self.root.quit()
 
@@ -276,6 +307,8 @@ def runCheck(gui, client):
             sleep(1)
             pastContacts = sendContacts(pastContacts, gui.contactList, client)
 
+        break
+
 
 def sendContacts(pastContacts, currContacts, client):
     """
@@ -286,9 +319,9 @@ def sendContacts(pastContacts, currContacts, client):
     :return:
     """
     if currContacts != pastContacts:
+        client.connect()
         client.sendFile("contacts.txt")
         client.close()
-        client.connect()
     return currContacts
 
 
@@ -296,10 +329,12 @@ if __name__ == "__main__":
     vs = cv2.VideoCapture("test.mp4")
     client = TCPClient()
     client.connect()
-    main = CLERNFDS(vs, "./")
-    t = ThreadPoolExecutor().submit(runCheck, [main, client])
-    main.loop()
+    main = CLERNFDS(vs, client, "./")
+    # an example of how to run the gui
+    p = Process(target=main.mainloop, args=())
+    p.run()
 
+    # main.mainloop()
     # client.sendFile("contacts.txt")
     #
     # t = ThreadPoolExecutor().submit(client.sendFile, "contacts.txt")
