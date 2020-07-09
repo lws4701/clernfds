@@ -27,26 +27,28 @@ class DetectorAPI:
             #cv.imshow(self.frame_array[current_frame])
 
 
-    def create_mhi(self) -> bytes: # May not be necessary when using Noah's motion detection module
-        '''
-        Creates the motion history image of a set of frames
-        :return current_mhi: a motion history image of the set of frames
-        '''
-        current_mhi = self.frame_array[0]
-        for current_frame in range(1, len(self.frame_array)):
-            cv.motempl.updateMotionHistory(silhouette=self.frame_array[current_frame], mhi=current_mhi,
-                                           timestamp=self.timestamp_array[current_frame], duration=0.2)
-        return current_mhi
+    # def create_mhi(self) -> bytes: # May not be necessary when using Noah's motion detection module
+    #     '''
+    #     Creates the motion history image of a set of frames
+    #     :return current_mhi: a motion history image of the set of frames
+    #     '''
+    #     current_mhi = self.frame_array[0]
+    #     for current_frame in range(1, len(self.frame_array)):
+    #         cv.motempl.updateMotionHistory(silhouette=self.frame_array[current_frame], mhi=current_mhi,
+    #                                        timestamp=self.timestamp_array[current_frame], duration=0.2)
+    #     return current_mhi
 
-    def get_ellipses(self) -> dict:
+    def get_rectangles(self) -> dict:
         '''
-        Returns elliptical approximation of foreground objects in images
-        :return ellipses: a dictionary of ellipses in the frame set
+        Returns rectangles approximation of foreground objects in images
+        :return rectangles: a dictionary of rectangles in the frame set
         '''
-        ellipses = dict()
+        rectangles = dict()
         for cur_image in range(len(self.frame_array)):
             contours, hierarchy = cv.findContours(self.frame_array[cur_image], cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
             for contour in contours:
                 img_name = "%s" % self.timestamp_array[cur_image]
-                ellipses[img_name] = cv.fitEllipse(contour) # returns ((x, y), (MA, ma), angle)
-        return ellipses
+                rectangles[img_name] = cv.boundingRect(contour) # Returns (x, y, w, h) where
+                                                                # (x,y) is the top left corner
+                                                                # and the (w, h) is the width and height
+        return rectangles
