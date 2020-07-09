@@ -1,6 +1,6 @@
 import socket
 import os
-import archive
+import Server.archive
 
 
 class TCPServer:
