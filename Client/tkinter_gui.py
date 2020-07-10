@@ -2,6 +2,7 @@
 tkinter_gui.py
 Author: Ryan Schildknecht
 """
+# TODO Test changing between two physical camera inputs
 import tkinter as tk
 from time import sleep
 from PIL import ImageTk, Image
@@ -25,6 +26,9 @@ class CLERNFDS(tk.Frame):
     to variables
 
     Multiprocessing alongside tkinter is not possible, only multithreading is.
+
+    Video pauses when a drop down is selected
+    (my guess is that it pauses the mainloop as well, so it is unavoidable without a custom mainloop)
     """
     # GUI has separate client object for concurrent delivery.
     client = None
@@ -112,11 +116,12 @@ class CLERNFDS(tk.Frame):
     def updatePreview(self):
         if self.videoRunning:
             self.stopEvent.set()
-            sleep(.5)  # Hacky thread ending solution but it works pretty well.
-            self.video.join()
-        # TODO replace when camera is accessible
-        # video = cv2.VideoCapture(self.selectedIndex)
-        video = cv2.VideoCapture("test/test.mp4")
+            self.video.join(timeout=1)
+        # TODO decomment when camera is accessible
+        index = int(self.selectedIndex)
+        video = cv2.VideoCapture(index)
+        # TODO decomment when testing.
+        #video = cv2.VideoCapture("test/test.mp4")
         self.stopEvent = threading.Event()
         self.video = threading.Thread(target=self.videoLoop, args=(video,), daemon=True)
         self.video.start()
@@ -283,7 +288,8 @@ class CLERNFDS(tk.Frame):
                 if self.frame is None:
                     print("No Video Feed.")
                     break
-                image = cv2.cvtColor(self.frame, cv2.COLOR_BGR2RGB)
+                image = cv2.resize(self.frame, (852, 480))
+                image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
                 image = Image.fromarray(image)
                 image = ImageTk.PhotoImage(image)
 
@@ -298,7 +304,7 @@ class CLERNFDS(tk.Frame):
                     self.panel.image = image
                 cv2.waitKey(20)
             vs.release()
-
+            self.videoRunning = False
         except Exception as e:
             print('***CLERN FDS GUI*** - "[%s] Error while running videoLoop"' % e)
         self.videoRunning = False
@@ -338,8 +344,9 @@ if __name__ == "__main__":
     main = CLERNFDS()
     # an example of how to run the gui
     # TKINTER cannot be ran under process so it has to be either the last thing called or ran as a thread.
-    ThreadPoolExecutor().submit(runCheck, main)
+    t = ThreadPoolExecutor().submit(runCheck, main)
     main.loop()
+
 
     # main.mainloop()
     # client.sendFile("contacts.txt")

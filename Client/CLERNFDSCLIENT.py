@@ -1,3 +1,9 @@
+"""
+CLERNFDSCLIENT.py
+Author
+Camera Ready
+Alter this and tkinter_gui.py as Necessary to run testfiles.
+"""
 import os
 import time
 import cv2
@@ -13,10 +19,11 @@ def main():
     # Init the Client being used to submit files
     client = TCPClient()
     # Get the frame deliverance loop started
-    ThreadPoolExecutor().submit(frameProcesses, gui, client)
+    transThread = ThreadPoolExecutor().submit(frameProcesses, gui, client)
     # Run the mainloop
-    gui.loop()
 
+    gui.loop()
+    transThread.result()
     print("Program Closed")
 
 
@@ -26,13 +33,14 @@ def frameProcesses(gui, frameClient):
     # Frame Deliverance
     while gui.isRunning:
         print("New Index")
-        index = gui.selectedIndex
+        index = int(gui.selectedIndex)
         frame_rate = 5
-        cap = cv2.VideoCapture("test/test.mp4")
 
         # TODO replace when camera is accessible
-        # cap.set(cv2.CAP_PROP_FPS, 5)
-        # cap = cv2.VideoCapture(index)
+        #cap = cv2.VideoCapture("test/test.mp4")
+        # For when webcam is available
+        cap = cv2.VideoCapture(index)
+        cap.set(cv2.CAP_PROP_FPS, 30)
 
         frameCount = 0
         archiveCount = 0
@@ -41,7 +49,7 @@ def frameProcesses(gui, frameClient):
         # open the cap (throwaway values)
         ret, frame = cap.read()
         it = time.time()
-        while index == gui.selectedIndex and cap.isOpened() and gui.isRunning:
+        while index == int(gui.selectedIndex) and cap.isOpened() and gui.isRunning:
             ret, frame = cap.read()
             frameCount += 1
             if frameCount % 5 == 1:
@@ -57,7 +65,7 @@ def frameProcesses(gui, frameClient):
                 print(f"{time.time() - it} seconds to collect and deliver archive.")
                 it = time.time()
             # THIS IS FOR TEST DATA ONLY NOT WEBCAM USAGE TODO comment out when using webcam
-            time.sleep(.033)  # time between frames in 30 fps
+            #time.sleep(.033)  # time between frames in 30 fps for when putting in a mp4
         cap.release()
 
 
