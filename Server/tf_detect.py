@@ -43,7 +43,6 @@ class DetectorAPI:
             [self.detection_boxes, self.detection_scores, self.detection_classes, self.num_detections],
             feed_dict={self.image_tensor: image_np_expanded})
 
-
         im_height, im_width, _ = image.shape
         boxes_list = [None for i in range(frame_boxes.shape[1])]
         for i in range(frame_boxes.shape[1]):
