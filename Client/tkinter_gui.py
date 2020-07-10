@@ -1,28 +1,35 @@
-import sys
+"""
+tkinter_gui.py
+Author: Ryan Schildknecht
+"""
 import tkinter as tk
 from time import sleep
 from PIL import ImageTk, Image
 from concurrent.futures.thread import ThreadPoolExecutor
-from concurrent.futures.process import ProcessPoolExecutor
 import threading
-from multiprocessing import Process
 import cv2
 import json
 import phonenumbers
 from Client.tcp_client import TCPClient
-import os
 
 
 class CLERNFDS(tk.Frame):
     """
     This is what the client will be interacting with primarily
+
     Needs to be the last thing running since the threading on tkinter is horrible and my solution is hacky
+
     GUI will hang until everything is done processing
 
+    Threading a thread alongside this gui with the gui object as a parameter will allow that thread dynamic access
+    to variables
+
+    Multiprocessing alongside tkinter is not possible, only multithreading is.
     """
     # GUI has separate client object for concurrent delivery.
     client = None
-
+    # For concurrent processes to end when the GUI closes
+    isRunning = False
     # Memory Location for contact list
     contactList = dict()
 
@@ -45,8 +52,6 @@ class CLERNFDS(tk.Frame):
     def __init__(self):
         """
         Initializes the entire GUI pulling json data from contacts and writing to cameras to display current index.
-        //TODO 3.) Changes video output
-        //TODO on gui to a new created thread and the video output on actual frame deliverance
         :param videoStream: :param outputPath:
         """
         # I put this inside of the class because there is no real use of inheritance in this application of tkinter
@@ -100,14 +105,18 @@ class CLERNFDS(tk.Frame):
         self.root.wm_title("CLERN Fall Detection System")
         self.root.wm_protocol("WM_DELETE_WINDOW", self.onClose)
 
+    def loop(self):
+        self.isRunning = True
+        self.mainloop()
+
     def updatePreview(self):
         if self.videoRunning:
             self.stopEvent.set()
             sleep(.5)  # Hacky thread ending solution but it works pretty well.
             self.video.join()
-
+        # TODO replace when camera is accessible
         # video = cv2.VideoCapture(self.selectedIndex)
-        video = cv2.VideoCapture("test.mp4")
+        video = cv2.VideoCapture("test/test.mp4")
         self.stopEvent = threading.Event()
         self.video = threading.Thread(target=self.videoLoop, args=(video,), daemon=True)
         self.video.start()
@@ -248,9 +257,9 @@ class CLERNFDS(tk.Frame):
                     json_file.close()
                 break
             except Exception as e:
-                print("***Error: File Currently Open*** errmsg=" % e)
+                print("***Error*** errmsg=%s" % e)
         # Update the servers end.
-        threading.Thread(target=self.updateServer, args=("contacts.txt",)).start()
+        threading.Thread(target=self.updateServer, args=("contacts.txt",), daemon=True).start()
         # Update the dropdown
         self.updateContactDropDown()
 
@@ -299,15 +308,16 @@ class CLERNFDS(tk.Frame):
         Essentially the Destructor Call
         :return:
         """
-        # set the stop event, cleanup the camera, and allow the rest of
-        # the quit process to continue
         print("CLERN FDS closing...")
+        # stop concurrent processes
+        self.isRunning = False
+        # set the stop event
         self.stopEvent.set()
-        # GUI Hangs until the program it is running in comes to an end
+        # GUI Hangs until the program it is running inside comes to an end
         self.root.quit()
 
 
-def runCheck(gui, client):
+def runCheck(gui):
     """
     Concurrent runtime loop that runs alongside the CLERN GUI
     :param gui:
@@ -318,34 +328,18 @@ def runCheck(gui, client):
     while True:
         sleep(1)  # Checks for changes every 5 seconds
         print("iteration")
-        while gui.running:
+        while gui.isRunning == True:
             sleep(1)
-            pastContacts = sendContacts(pastContacts, gui.contactList, client)
-
+            print(gui.selectedContact)
         break
-
-
-def sendContacts(pastContacts, currContacts, client):
-    """
-    When the contact list changes the server gets an updated copy of it.
-    :param pastContacts:
-    :param currContacts:
-    :param client:
-    :return:
-    """
-    if currContacts != pastContacts:
-        client.connect()
-        client.sendFile("contacts.txt")
-        client.close()
-    return currContacts
 
 
 if __name__ == "__main__":
     main = CLERNFDS()
     # an example of how to run the gui
-    # TKINTER doesnt like ProcessPoolExecutor so you have to use the real multiprocessing.Process
-    Process(target=main.mainloop, args=()).run()
-
+    # TKINTER cannot be ran under process so it has to be either the last thing called or ran as a thread.
+    ThreadPoolExecutor().submit(runCheck, main)
+    main.loop()
 
     # main.mainloop()
     # client.sendFile("contacts.txt")
