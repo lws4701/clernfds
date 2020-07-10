@@ -1,6 +1,6 @@
 import math
 import os
-from tensorflow_human_detection import DetectorAPI
+from Server.tf_detect import DetectorAPI
 
 
 class MotionDetector:

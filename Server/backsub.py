@@ -16,7 +16,7 @@ class DetectorAPI:
         else:
             self.frame_array = frame_array
         self.timestamp_array = timestamp_array
-        self.back_sub = cv.createBackgroundSubtractorMOG2()
+        self.back_sub = cv.createBackgroundSubtractorMOG2(varThreshold=9.5)
 
     def background_subtract(self) -> None:
         '''
@@ -27,6 +27,7 @@ class DetectorAPI:
             self.frame_array[current_frame] = self.back_sub.apply(self.frame_array[current_frame])
             # For viewing the background subtracted photo
             # cv.imshow('Backsub', self.frame_array[current_frame])
+            # cv.waitKey(300)
     #
     # def create_mhi(self) -> bytes: # May not be necessary when using Noah's motion detection module
     #     '''
@@ -48,11 +49,15 @@ class DetectorAPI:
         rectangles = dict()
         for cur_image in range(len(self.frame_array)):
             contours, hierarchy = cv.findContours(self.frame_array[cur_image], cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
-            for contour in contours:
-                rect_array = list()
-                rect_array.append(cv.boundingRect(contour))
-                img_name = "%s" % self.timestamp_array[cur_image]
-                rectangles[img_name] = rect_array # Returns (x, y, w, h) where
-                                                                # (x,y) is the top left corner
-                                                                # and the (w, h) is the width and height
+            contour = max(contours, key=cv.contourArea)
+            x, y, w, h = cv.boundingRect(contour)
+            box = [(x, y), ((x+w), y), (x, (y+h)), ((x+w), (y+h))]
+            # print(cv.boundingRect(contour))
+            cv.rectangle(self.frame_array[cur_image], (x, y), ((x+w), (y+h)), (255, 0, 0), 2)
+            cv.imshow('Backsub', self.frame_array[cur_image])
+            cv.waitKey(300)
+            img_name = "%s" % self.timestamp_array[cur_image]
+            rectangles[img_name] = box# Returns (x, y, w, h) where
+                                                            # (x,y) is the top left corner
+                                                            # and the (w, h) is the width and height
         return rectangles
