@@ -53,8 +53,8 @@ class DetectorAPI:
             box = [(x, y), ((x+w), y), (x, (y+h)), ((x+w), (y+h))]
             # print(cv.boundingRect(contour))
             cv.rectangle(self.frame_array[cur_image], (x, y), ((x+w), (y+h)), (255, 0, 0), 2)
-            cv.imshow('Backsub', self.frame_array[cur_image])
-            cv.waitKey(100)
+            #cv.imshow('Backsub', self.frame_array[cur_image])
+            #cv.waitKey(100)
             img_name = "%s" % self.timestamp_array[cur_image]
             rectangles[img_name] = box # Returns (x, y, w, h) where
                                        # (x,y) is the top left corner

@@ -175,9 +175,12 @@ def main():
 
         # model_path = 'test/faster_rcnn_inception_v2_coco/frozen_inference_graph.pb'
         # odapi = DetectorAPI(path_to_ckpt=model_path)
+        parent_dir = os.getcwd()
         frame_packet = sorted(os.listdir('./test/img1'))
+        os.chdir('test/img1')
         frame_packet = [x for x in frame_packet if x.endswith('.png')]
         frame_packet = [cv2.imread(x) for x in frame_packet]
+        os.chdir(parent_dir)
         dapi = DetectorAPI(frame_packet, [0.2 * x for x in range(len(frame_packet))])
         dapi.background_subtract()
         # test_data = odapi.processPacket(frame_packet)

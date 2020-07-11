@@ -11,7 +11,6 @@ os.chdir('img1')
 framePacket = [cv.imread(x) for x in files]
 os.chdir(parent_dir)
 timestamp = [1 * x for x in range(len(framePacket))]
-print(cv.imread('mask.png'))
 dapi = DetectorAPI(framePacket, timestamp, cv.imread('mask.png'))
 dapi.background_subtract()
 rect = dapi.get_rectangles()
