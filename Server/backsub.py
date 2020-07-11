@@ -16,7 +16,7 @@ class DetectorAPI:
         else:
             self.frame_array = frame_array
         self.timestamp_array = timestamp_array
-        self.back_sub = cv.createBackgroundSubtractorMOG2(varThreshold=9.5)
+        self.back_sub = cv.createBackgroundSubtractorKNN(dist2Threshold=1000)
 
     def background_subtract(self) -> None:
         '''

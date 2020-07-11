@@ -1,6 +1,7 @@
 import math
 import os
-from Server.tf_detect import DetectorAPI
+import cv2
+from Server.backsub import DetectorAPI
 
 
 class MotionDetector:
@@ -171,10 +172,16 @@ class MotionData:
 
 def main():
     if __name__ == "__main__":
-        model_path = 'test/faster_rcnn_inception_v2_coco/frozen_inference_graph.pb'
-        odapi = DetectorAPI(path_to_ckpt=model_path)
-        frame_packet = os.listdir('img')
-        test_data = odapi.processPacket(frame_packet)
+
+        # model_path = 'test/faster_rcnn_inception_v2_coco/frozen_inference_graph.pb'
+        # odapi = DetectorAPI(path_to_ckpt=model_path)
+        frame_packet = sorted(os.listdir('./test/img1'))
+        frame_packet = [x for x in frame_packet if x.endswith('.png')]
+        frame_packet = [cv2.imread(x) for x in frame_packet]
+        dapi = DetectorAPI(frame_packet, [0.2 * x for x in range(len(frame_packet))])
+        dapi.background_subtract()
+        # test_data = odapi.processPacket(frame_packet)
+        test_data = dapi.get_rectangles()
         motion_detector = MotionDetector(test_data)
         result = motion_detector.motionDataFromFrames()
         frames = motion_detector.getFrameObjects()
