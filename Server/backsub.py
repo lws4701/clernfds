@@ -4,13 +4,13 @@ import cv2 as cv
 class DetectorAPI:
     mask = None
 
-    def __init__(self, frame_array, timestamp_array) -> None:
+    def __init__(self, frame_array, timestamp_array, image_mask = None) -> None:
         '''
         Constructor Method: Takes an array of frames. If a background mask
         does not exist, one is created from the first index in the frames.
         :param frame_array: An array of frames to analyze:
         '''
-        if self.mask is None:
+        if self.mask is None and image_mask is None:
             self.mask = frame_array[0]
             self.frame_array = frame_array[0:]
         else:
@@ -55,9 +55,9 @@ class DetectorAPI:
             # print(cv.boundingRect(contour))
             cv.rectangle(self.frame_array[cur_image], (x, y), ((x+w), (y+h)), (255, 0, 0), 2)
             cv.imshow('Backsub', self.frame_array[cur_image])
-            cv.waitKey(300)
+            cv.waitKey(100)
             img_name = "%s" % self.timestamp_array[cur_image]
-            rectangles[img_name] = box# Returns (x, y, w, h) where
-                                                            # (x,y) is the top left corner
-                                                            # and the (w, h) is the width and height
+            rectangles[img_name] = box # Returns (x, y, w, h) where
+                                       # (x,y) is the top left corner
+                                       # and the (w, h) is the width and height
         return rectangles
