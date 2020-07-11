@@ -2,7 +2,7 @@ import math
 import os
 import cv2
 from Server.backsub import DetectorAPI
-
+import time
 
 class MotionDetector:
 
@@ -10,7 +10,7 @@ class MotionDetector:
 
     def __init__(self, dict_of_frames):
         for key in dict_of_frames:
-            self.frames.append(Frame(key, DetectedPerson(*dict_of_frames[key][0])))
+            self.frames.append(Frame(key, DetectedPerson(*dict_of_frames[key])))
 
     def motionDataFromFrames(self) -> list:
         motion_data_list = []
@@ -179,12 +179,14 @@ def main():
         frame_packet = sorted(os.listdir('./test/img1'))
         os.chdir('test/img1')
         frame_packet = [x for x in frame_packet if x.endswith('.png')]
+        start_time=time.time()
         frame_packet = [cv2.imread(x) for x in frame_packet]
         os.chdir(parent_dir)
-        dapi = DetectorAPI(frame_packet, [0.2 * x for x in range(len(frame_packet))])
+        dapi = DetectorAPI(frame_packet, [x for x in range(len(frame_packet))])
         dapi.background_subtract()
         # test_data = odapi.processPacket(frame_packet)
         test_data = dapi.get_rectangles()
+        print(test_data)
         motion_detector = MotionDetector(test_data)
         result = motion_detector.motionDataFromFrames()
         frames = motion_detector.getFrameObjects()
@@ -192,6 +194,8 @@ def main():
             print(str(obj))
         for obj in frames:
             print(str(obj))
+        end_time = time.time()
+        print(end_time - start_time)
 
 
 
