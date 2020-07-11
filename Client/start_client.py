@@ -18,10 +18,10 @@ def main():
     while cap.isOpened():
         ret, frame = cap.read()
         if ret == True:
-            filename = 'Frames/' + str(time.time()) + '.jpg'
+            file_name = 'Frames/' + str(time.time()) + '.jpg'
             print("test")
-            files.append(filename)
-            cv2.imwrite(filename, frame)
+            files.append(file_name)
+            cv2.imwrite(file_name, frame)
 
             # comment this out if you dont want to see the video
             cv2.imshow('Preview', frame)
@@ -30,29 +30,29 @@ def main():
         if len(files) >= 5:
             sendFiles(files, client)
 
-
     # Release everything if job is finished
     cap.release()
     cv2.destroyAllWindows()
 
 
-def sendFiles(files,client):
-    #creating zip of frames to send
-    imgZip = Archive()
-    parentDir = os.getcwd()
+def sendFiles(files, client):
+    # creating zip of frames to send
+    img_zip = Archive()
+    parent_dir = os.getcwd()
     for i in range(5):
-        tempFilename = files.pop()
-        imgZip.add(tempFilename)
-        #deleting files once added to zip
-        if os.path.exists(tempFilename):
-            os.remove(tempFilename)
+        temp_file_name = files.pop()
+        img_zip.add(temp_file_name)
+        # deleting files once added to zip
+        if os.path.exists(temp_file_name):
+            os.remove(temp_file_name)
         else:
-            print("%s does not exist" % tempFilename)
-    #sending frames to server
-    os.chdir(parentDir)
+            print("%s does not exist" % temp_file_name)
+    # sending frames to server
+    os.chdir(parent_dir)
     client.connect()
-    client.sendFile(imgZip.fileName)
+    client.sendFile(img_zip.file_name)
     client.close()
+
 
 if __name__ == '__main__':
     main()

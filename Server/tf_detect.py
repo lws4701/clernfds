@@ -1,3 +1,6 @@
+"""
+******************* POSSIBLY DELETE ***************
+"""
 # Code adapted from Tensorflow Object Detection Framework
 # https://github.com/tensorflow/models/blob/master/research/object_detection/object_detection_tutorial.ipynb
 # Tensorflow Object Detection Detector
@@ -25,14 +28,19 @@ class DetectorAPI:
         self.sess = tf.compat.v1.Session(graph=self.detection_graph)
 
         # Definite input and output Tensors for detection_graph
-        self.image_tensor = self.detection_graph.get_tensor_by_name('image_tensor:0')
+        self.image_tensor = self.detection_graph.get_tensor_by_name(
+            'image_tensor:0')
         # Each box represents a part of the image where a particular object was detected.
-        self.detection_boxes = self.detection_graph.get_tensor_by_name('detection_boxes:0')
+        self.detection_boxes = self.detection_graph.get_tensor_by_name(
+            'detection_boxes:0')
         # Each score represent how level of confidence for each of the objects.
         # Score is shown on the result image, together with the class label.
-        self.detection_scores = self.detection_graph.get_tensor_by_name('detection_scores:0')
-        self.detection_classes = self.detection_graph.get_tensor_by_name('detection_classes:0')
-        self.num_detections = self.detection_graph.get_tensor_by_name('num_detections:0')
+        self.detection_scores = self.detection_graph.get_tensor_by_name(
+            'detection_scores:0')
+        self.detection_classes = self.detection_graph.get_tensor_by_name(
+            'detection_classes:0')
+        self.num_detections = self.detection_graph.get_tensor_by_name(
+            'num_detections:0')
 
     def processFrame(self, image):
         # Expand dimensions since the trained_model expects images to have shape: [1, None, None, 3]
@@ -40,16 +48,17 @@ class DetectorAPI:
         # Actual detection.
         start_time = time.time()
         (frame_boxes, frame_scores, frame_classes, frame_num) = self.sess.run(
-            [self.detection_boxes, self.detection_scores, self.detection_classes, self.num_detections],
+            [self.detection_boxes, self.detection_scores,
+                self.detection_classes, self.num_detections],
             feed_dict={self.image_tensor: image_np_expanded})
 
         im_height, im_width, _ = image.shape
         boxes_list = [None for i in range(frame_boxes.shape[1])]
         for i in range(frame_boxes.shape[1]):
             boxes_list[i] = (int(frame_boxes[0, i, 0] * im_height),
-                        int(frame_boxes[0, i, 1]*im_width),
-                        int(frame_boxes[0, i, 2] * im_height),
-                        int(frame_boxes[0, i, 3]*im_width))
+                             int(frame_boxes[0, i, 1]*im_width),
+                             int(frame_boxes[0, i, 2] * im_height),
+                             int(frame_boxes[0, i, 3]*im_width))
 
         scores = frame_scores[0].tolist()
         classes = [int(x) for x in frame_classes[0].tolist()]
@@ -59,14 +68,16 @@ class DetectorAPI:
             # Class 1 represents human
             if classes[i] == 1 and scores[i] > threshold:
                 box = boxes_list[i]
-                cv2.rectangle(image, (box[1], box[0]), (box[3], box[2]), (255, 0, 0), 2)
-                box_coords.append([(box[1], box[0]), (box[3], box[0]), (box[1], box[2]), (box[3], box[2])])
+                cv2.rectangle(image, (box[1], box[0]),
+                              (box[3], box[2]), (255, 0, 0), 2)
+                box_coords.append(
+                    [(box[1], box[0]), (box[3], box[0]), (box[1], box[2]), (box[3], box[2])])
 
         end_time = time.time()
         print("Elapsed Time:", end_time - start_time)
         return box_coords
 
-        #return boxes_list, frame_scores[0].tolist(), [int(x) for x in frame_classes[0].tolist()], int(frame_num[0])
+        # return boxes_list, frame_scores[0].tolist(), [int(x) for x in frame_classes[0].tolist()], int(frame_num[0])
 
     def processPacket(self, packet):
         box_dict = {}
@@ -77,7 +88,7 @@ class DetectorAPI:
             r, image = cap.read()
             img = cv2.resize(image, (1280, 720))
             coords = self.processFrame(img)
-            #print(coords)
+            # print(coords)
             box_dict[frame] = coords
 
         return box_dict
@@ -112,5 +123,5 @@ if __name__ == "__main__":
     #         print("(", box[3], ", ", box[2], ")")
     # cv2.imshow("preview", img)
     # key = cv2.waitKey(10000)
-    #if key & 0xFF == ord('q'):
-        #break
+    # if key & 0xFF == ord('q'):
+    # break

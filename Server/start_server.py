@@ -1,7 +1,8 @@
 '''
+****************POSSIBLE DELETE*******************
 File Name: start_server.py
 Authors: CLERN Development Team
-Last Modified: 3 Jul 2020
+Last Modified: 11 Jul 2020
 Description: This file acts as the mainloop for the full CLERN server
 '''
 from Server.file_server import start_server
@@ -45,6 +46,7 @@ def main():
             os.chdir(parent_dir)
             os.rmdir(dir_list[0])
         pass
+
 
 if __name__ == "__main__":
     main()

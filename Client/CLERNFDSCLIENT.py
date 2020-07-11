@@ -57,10 +57,10 @@ def frameProcesses(gui, frameClient):
             ret, frame = cap.read()
             frameCount += 1
             if frameCount % 5 == 1:
-                filename = 'Frames/' + str(time.time()) + '.jpg'
-                cv2.imwrite(filename, frame)
-                frames.append(filename)
-                print(f'{filename} saved')
+                file_name = 'Frames/' + str(time.time()) + '.jpg'
+                cv2.imwrite(file_name, frame)
+                frames.append(file_name)
+                print(f'{file_name} saved')
             if frameCount == 25:
                 archiveCount += 1
                 deliver(frames, archiveCount, frameClient)
@@ -69,7 +69,7 @@ def frameProcesses(gui, frameClient):
                 print(f"{time.time() - it} seconds to collect and deliver archive.")
                 it = time.time()
             # THIS IS FOR TEST DATA ONLY NOT WEBCAM USAGE TODO comment out when using webcam
-            #time.sleep(.033)  # time between frames in 30 fps for when putting in a mp4
+            # time.sleep(.033)  # time between frames in 30 fps for when putting in a mp4
         cap.release()
 
 
@@ -81,9 +81,9 @@ def deliver(frames, count, client):
     :param client:
     :return:
     """
-    imgZip = Archive(str(count) + ".zip")
+    img_zip = Archive(str(count) + ".zip")
     for frame in frames:
-        imgZip.add(frame)
+        img_zip.add(frame)
         print(f"{frame} added")
         # deleting files once added to zip
         if os.path.exists(frame):
@@ -91,8 +91,8 @@ def deliver(frames, count, client):
         else:
             print(f"{frame} does not exist")
     # sending frames to server
-    imgZip.close()
-    client.sendFile(imgZip.fileName)
+    img_zip.close()
+    client.sendFile(img_zip.file_name)
 
 
 if __name__ == "__main__":
