@@ -4,6 +4,7 @@ Author
 Camera Ready
 Alter this and tkinter_gui.py as Necessary to run testfiles.
 """
+
 import os
 import time
 import cv2
@@ -14,6 +15,9 @@ from concurrent.futures import ThreadPoolExecutor
 
 
 def main():
+    # Ensure proper directories exist
+    if not(os.path.exists('Frames')):
+        os.mkdir('Frames')
     # Start The ClientGUI
     gui = CLERNFDS()
     # Init the Client being used to submit files
