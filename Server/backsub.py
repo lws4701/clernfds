@@ -2,21 +2,20 @@ import cv2 as cv
 
 
 class DetectorAPI:
-    mask = None
-
     def __init__(self, frame_array, timestamp_array, image_mask = None) -> None:
         '''
         Constructor Method: Takes an array of frames. If a background mask
         does not exist, one is created from the first index in the frames.
         :param frame_array: An array of frames to analyze:
         '''
-        if self.mask is None and image_mask is None:
+        if image_mask is None:
             self.mask = frame_array[0]
             self.frame_array = frame_array[0:]
         else:
             self.frame_array = frame_array
+            self.mask = image_mask
         self.timestamp_array = timestamp_array
-        self.back_sub = cv.createBackgroundSubtractorKNN(dist2Threshold=1000)
+        self.back_sub = cv.createBackgroundSubtractorKNN(dist2Threshold=1250)
 
     def background_subtract(self) -> None:
         '''
@@ -27,7 +26,7 @@ class DetectorAPI:
             self.frame_array[current_frame] = self.back_sub.apply(self.frame_array[current_frame])
             # For viewing the background subtracted photo
             # cv.imshow('Backsub', self.frame_array[current_frame])
-            # cv.waitKey(300)
+            # cv.waitKey(30)
     #
     # def create_mhi(self) -> bytes: # May not be necessary when using Noah's motion detection module
     #     '''
