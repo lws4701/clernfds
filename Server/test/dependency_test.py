@@ -1,5 +1,5 @@
 import cv2
-import pillow
+import PIL
 import phonenumbers
 
 print("All dependencies are downloaded.")
