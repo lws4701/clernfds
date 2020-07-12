@@ -166,8 +166,6 @@ class MotionData:
         :param start_frame: the frame object to start from
         :param end_frame: the frame object to end at
         """
-        start_top_left = start_frame.detected_person.top_left
-        end_top_left = end_frame.detected_person.top_left
         start_center = start_frame.detected_person.center
         end_center = end_frame.detected_person.center
 
@@ -175,36 +173,30 @@ class MotionData:
         self.start_frame = start_frame
         self.end_frame = end_frame
 
-        # Checks for if the angle or length of the diagonal has changed since this would mean one or more of the dimensions have changed
-        self.transform_detected = (not (start_frame.detected_person.length_of_diag == end_frame.detected_person.length_of_diag) or
-                                   not (start_frame.detected_person.angle_of_diag == end_frame.detected_person.angle_of_diag))
+        # Checks for if the height or width of the rectangle has changed since this describes a transformation
+        self.transform_detected = (not (start_frame.detected_person.height == end_frame.detected_person.height) or
+                                   not (start_frame.detected_person.width == end_frame.detected_person.width))
 
-        # Checks to see if a transformation has not been detected
-        motion_vector = (end_center[0] - start_center[0], end_center[1] - start_center[1])
-        self.translate_detected = (not self.transform_detected and not motion_vector == (0, 0) and self.calcMotionVector(start_top_left, end_top_left) == motion_vector and
-                                   self.calcMotionVector(start_frame.detected_person.top_right, end_frame.detected_person.top_right) == motion_vector and
-                                   self.calcMotionVector(start_frame.detected_person.bottom_left, end_frame.detected_person.bottom_left) == motion_vector and
-                                   self.calcMotionVector(start_frame.detected_person.bottom_right, end_frame.detected_person.bottom_right) == motion_vector)
+        # Checks to see if a transformation has not been detected and if the center point has changed
+        self.translate_detected = (not self.transform_detected and not start_center == end_center)
 
         # Absolute value of the difference in the center x/y
         self.delta_x = abs(end_center[0] - start_center[0])
         self.delta_y = abs(end_center[1] - start_center[1])
 
         # A tuple with signed integers indicating the change in x and y
-        self.motion_vector = motion_vector
+        self.motion_vector = (end_center[0] - start_center[0], end_center[1] - start_center[1])
 
         # Basically just the length of the line formed by the start center point and end center point
         self.velocity = self.calcVelocity(start_center, end_center)
 
-        # Angle, measured in radians of the line of velocity
+        # The Angle, measured in radians, of the line of velocity
         self.direction = self.calcDirection(start_center, end_center)
 
-        # This check is here so that when the shape of the box didn't change then these calculations aren't necessary
-        if self.transform_detected:
-            self.diag_angle_change = round(end_frame.detected_person.angle_of_diag - start_frame.detected_person.angle_of_diag, 4)
-            self.diag_length_change = round(end_frame.detected_person.length_of_diag - start_frame.detected_person.length_of_diag, 4)
-            self.height_change = end_frame.detected_person.height - start_frame.detected_person.height
-            self.width_change = end_frame.detected_person.width - start_frame.detected_person.width
+        self.diag_angle_change = round(end_frame.detected_person.angle_of_diag - start_frame.detected_person.angle_of_diag, 4)
+        self.diag_length_change = round(end_frame.detected_person.length_of_diag - start_frame.detected_person.length_of_diag, 4)
+        self.height_change = end_frame.detected_person.height - start_frame.detected_person.height
+        self.width_change = end_frame.detected_person.width - start_frame.detected_person.width
 
     def calcVelocity(self, start_point, end_point) -> float:
         """
@@ -230,17 +222,6 @@ class MotionData:
         :return: direciton: measured in radians
         """
         return round(math.atan2(-(end_point[1] - start_point[1]), end_point[0] - start_point[0]), 4)
-
-    def calcMotionVector(self, start_point, end_point) -> tuple:
-        """
-        This functions takes in a start_point and end_point and returns the signed difference between
-        start_point's x/y and end_point's x/y and puts those differences in a tuple.
-        :param start_point: Tuple of form: (x, y)
-        :param end_point: Tuple of form: (x, y)
-        :return: Tuple of form: (change_in_x, change_in_y)
-        """
-
-        return end_point[0] - start_point[0], end_point[1] - start_point[1]
 
     def __str__(self):
         return '{' + '\n' \
