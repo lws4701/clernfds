@@ -32,9 +32,6 @@ class Archive:
         """Ryan - Need this to send a valid .zip"""
         self.zip_archive.close()
 
-    def getName(self):
-        return self.file_name
-
     def open(self):
         """
         Ryan - May have some use for future

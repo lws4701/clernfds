@@ -12,8 +12,8 @@ def main():
     cap = cv2.VideoCapture(0)
     cap.set(cv2.CAP_PROP_FPS, 5)
 
-    if not (os.path.exists('./Frames')):
-        os.mkdir('Frames')
+    if not (os.path.exists('../Frames')):
+        os.mkdir('../Frames')
 
     while cap.isOpened():
         ret, frame = cap.read()

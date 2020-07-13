@@ -5,7 +5,6 @@ import os
 class TCPClient:
     """
     TCP Client Side of the connection between client and host
-    There needs to be an explicit connection call to be able to send to host
     """
 
     host = None  # server address eg.) 127.0.0.1 (local)
@@ -22,40 +21,22 @@ class TCPClient:
         # no efficient way to check host it just wont work if wrong.
         self.host = host
 
-    def connect(self):
-        """Connect Client to Host Server"""
+    def __connect(self):
+        """
+        Helper Function to the sendFile function that connects to the server
+        :return:
+        """
         try:
             self.s = socket.socket()
             self.s.connect((self.host, self.port))
             print("Client Connected")
         except Exception as err_type:
             print(
-                "*** TCP Client \"{}\" error while connecting to server***".format(err_type))
-
-    def send(self, data=None):
-        """Send data between client and host"""
-        try:
-            if self.s is not None:
-                # dummy data for testing purposes
-                if data is None:
-                    message = input('What ya wanna send? -> ')
-                else:
-                    message = data
-                while message != '':
-                    self.s.send(message.encode('utf-8'))
-                    data = self.s.recv(1024).decode('utf-8')
-                    print("Server Response = {}".format(data))
-                    message = input(
-                        "Send another message or just press enter ==> ")
-            else:
-                print("*** TCP Client - Connection between server has not been made ***")
-        except Exception as err_type:
-            print(
-                "*** TCP Client \"{}\" error while trying to send***".format(err_type))
+                f"*** TCP Client \"{err_type}\" error while connecting to server***")
 
     def sendFile(self, file_name):
         """Send file from client to server"""
-        self.connect()
+        self.__connect()
         try:
             if self.s is not None:
                 if file_name is None:
@@ -81,10 +62,14 @@ class TCPClient:
                     # os.remove(file_name)
         except Exception as err_type:
             print("***TCP Client \"%s\" error while trying to send ***" % err_type)
-        self.close()
+        self.__close()
 
-    def close(self):
-        """ Close connection between the client and the host"""
+    def __close(self):
+
+        """
+        Helper Function to Sendfile function that closes the connection
+        :return:
+        """
         try:
             if self.s is not None:
                 self.s.close()
@@ -96,5 +81,5 @@ class TCPClient:
             print(
                 "*** TCP Client \"{}\" error while closing connection***".format(err_type))
 
-    def data(self):
+    def __str__(self):
         print("Host is: {} and the port is {}".format(self.host, self.port))

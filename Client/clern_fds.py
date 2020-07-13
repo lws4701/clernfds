@@ -1,8 +1,8 @@
 """
-CLERNFDSCLIENT.py
-Author
+clern_fds.py
+Author: Ryan Schildknecht
 Camera Ready
-Alter this and tkinter_gui.py as Necessary to run testfiles.
+Alter this and tkinter_gui.py as necessary to run testfiles.
 """
 
 import os
