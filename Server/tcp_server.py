@@ -40,9 +40,10 @@ class TCPServer:
         try:
             while True:
                 self.s.listen()
-                c, cAddress = self.s.accept()
-                print("Connection from: {}".format(str(cAddress)))
-                ThreadPoolExecutor().submit(self.receiveFile, c)  # Receives file while listening to next file.
+                c, c_address = self.s.accept()
+                print("Connection from: {}".format(str(c_address)))
+                # Receives file while listening to next file.
+                ThreadPoolExecutor().submit(self.receiveFile, c)
         except Exception as err_type:
             print(
                 "*** TCP Server \"{}\" error while connecting client to server***".format(err_type))
@@ -55,27 +56,27 @@ class TCPServer:
         """
         try:
             if c is not None:
-                fileHeader = c.recv(512).decode().strip()
-                response = fileHeader.upper() + " RECEIVED"
-                with open(fileHeader, "wb") as writeFile:
+                file_header = c.recv(512).decode().strip()
+                response = file_header.upper() + " RECEIVED"
+                with open(file_header, "wb") as write_file:
                     while True:
-                        bytesRead = c.recv(1024)
-                        if not bytesRead:
+                        bytes_read = c.recv(1024)
+                        if not bytes_read:
                             break
-                        writeFile.write(bytesRead)
+                        write_file.write(bytes_read)
                         #print("+", end="")
                         # TCP Response
                         c.send(response.encode('utf-8'))
-                    writeFile.close()
-                print("%s Received" % fileHeader)
+                    write_file.close()
+                print("%s Received" % file_header)
                 c.close()
-                self.received.append(fileHeader)
+                self.received.append(file_header)
         except Exception as err_type:
             print(
                 "*** TCP SERVER \"%s\" error while trying to receive file ***" % err_type)
 
-    # Antiquated..
-    def receiveTEST(self, c):
+    # TODO: Delete?
+    def receive_test(self, c):
         """
         ***ANTIQUATED***
         Receive data between and host

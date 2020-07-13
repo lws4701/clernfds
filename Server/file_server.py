@@ -24,9 +24,8 @@ def start_server():
             os.chdir("./archives")
             frame_archive.extract()
             os.chdir(parent_dir)
-            os.remove("./%s" % frame_archive.fileName)
+            os.remove("./%s" % frame_archive.file_name)
     except Exception as err_type:
         print("\n***TCP SERVER %s error thrown during file transfer ***" % err_type)
         clern_server.close()
         sys.exit()
-

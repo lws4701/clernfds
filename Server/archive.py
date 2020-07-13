@@ -10,48 +10,33 @@ import os
 
 
 class Archive:
-    fileName = None
+    file_name = None
 
-    def __init__(self, fileName=str(abs(hash(datetime.now()))) + '.zip'):
-        self.fileName = fileName
-        self.nameWOExtension = fileName.replace('.zip', '')
-        self.zipArchive = ZipFile(fileName, 'r')
+    def __init__(self, file_name=str(abs(hash(datetime.now()))) + '.zip'):
+        self.file_name = file_name
+        self.name_woextension = file_name.replace('.zip', '')
+        self.zip_archive = ZipFile(file_name, 'r')
 
-    """def add(self, fileName):
+    """def add(self, file_name):
         try:
-            self.zipArchive.write(fileName)
+            self.zip_archive.write(file_name)
         except:
             print("Unable to add %s to %s" %
-                  (fileName, self.zipArchive.filename))"""
+                  (file_name, self.zip_archive.file_name))"""
 
     def extract(self):
-        os.mkdir(self.nameWOExtension)
-        os.chdir(self.nameWOExtension)
-        self.zipArchive.extractall()
-        self.zipArchive.close()
+        os.mkdir(self.name_woextension)
+        os.chdir(self.name_woextension)
+        self.zip_archive.extractall()
+        self.zip_archive.close()
 
     def close(self):
         """Ryan - Need this to send a valid .zip"""
-        self.zipArchive.close()
+        self.zip_archive.close()
 
     def open(self):
         """
         Ryan - May have some use for future
         (maybe only instantiate the zip once?)
         """
-        self.zipArchive.open()
-# DO NOT USE: CV2 HAS cv2.imwrite() and cv2.imread(). Use these for writing to file instead
-
-# # Helper function for reading an image a byte string
-# def readImage(fileName):
-#     try:
-#         with open(fileName, 'rb') as cf:
-#             return cf.read() # returns a string of hex values
-#     except:
-#         print("Unable to read image: %s" % fileName) # In the case the file does not exist/cannot be opened
-
-
-# # Write an image as a bytestring to a file
-# def writeImage(byteString, fileName):
-#     with open(fileName, 'wb') as cf:
-#         cf.write(byteString) # writes a hexadecimal stream to a file
+        self.zip_archive.open()
