@@ -41,15 +41,13 @@ class DetectorAPI:
             contour = max(contours, key=cv.contourArea)
             x, y, w, h = cv.boundingRect(contour)
             box = [(x, y), ((x+w), y), (x, (y+h)), ((x+w), (y+h))]
-            if box != [(0, 0), (640, 0), (0, 480), (640, 480)]:
-                # print(cv.boundingRect(contour))
-                #cv.rectangle(self.frame_array[cur_image],
-                #             (x, y), ((x+w), (y+h)), (255, 0, 0), 2)
-                # cv.imshow('Backsub', self.frame_array[cur_image])
-                # cv.waitKey(100)
-                img_name = "%s" % self.timestamp_array[cur_image]
-                rectangles[img_name] = box  # Returns (x, y, w, h) where
-                # (x,y) is the top left corner
-                # and the (w, h) is the width and height
-        print(rectangles)
+            # print(cv.boundingRect(contour))
+            cv.rectangle(self.frame_array[cur_image],
+                         (x, y), ((x+w), (y+h)), (255, 0, 0), 2)
+            # cv.imshow('Backsub', self.frame_array[cur_image])
+            # cv.waitKey(100)
+            img_name = "%s" % self.timestamp_array[cur_image]
+            rectangles[img_name] = box  # Returns (x, y, w, h) where
+            # (x,y) is the top left corner
+            # and the (w, h) is the width and height
         return rectangles
