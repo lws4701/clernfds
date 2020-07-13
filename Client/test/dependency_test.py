@@ -1,5 +1,5 @@
 import cv2
-import tensorflow
-import numpy
+import PIL
+import phonenumbers
 
 print("All dependencies are downloaded.")

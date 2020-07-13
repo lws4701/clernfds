@@ -11,7 +11,7 @@ class TCPServer:
     host = None  # server address eg.) 127.0.0.1 (local)
     port = None  # port number eg.) 1025–65535
     s = None
-    received = []
+    receivedZips = []
 
     def __init__(self, host: str = socket.gethostname(), port: int = 8080):
         """
@@ -40,14 +40,15 @@ class TCPServer:
         try:
             while True:
                 self.s.listen()
-                c, cAddress = self.s.accept()
-                print("Connection from: {}".format(str(cAddress)))
-                ThreadPoolExecutor().submit(self.receiveFile, c)  # Receives file while listening to next file.
+                c, c_address = self.s.accept()
+                print("Connection from: {}".format(str(c_address)))
+                # Receives file while listening to next file.
+                ThreadPoolExecutor().submit(self.__receiveFile, c)
         except Exception as err_type:
             print(
                 "*** TCP Server \"{}\" error while connecting client to server***".format(err_type))
 
-    def receiveFile(self, c):
+    def __receiveFile(self, c):
         """
         Receive file from client
         :param c: //Client
@@ -55,47 +56,25 @@ class TCPServer:
         """
         try:
             if c is not None:
-                fileHeader = c.recv(512).decode().strip()
-                response = fileHeader.upper() + " RECEIVED"
-                with open(fileHeader, "wb") as writeFile:
+                file_header = c.recv(512).decode().strip()
+                response = file_header.upper() + " RECEIVED"
+                with open(file_header, "wb") as write_file:
                     while True:
-                        bytesRead = c.recv(1024)
-                        if not bytesRead:
+                        bytes_read = c.recv(1024)
+                        if not bytes_read:
                             break
-                        writeFile.write(bytesRead)
-                        #print("+", end="")
+                        write_file.write(bytes_read)
+                        # print("+", end="")
                         # TCP Response
                         c.send(response.encode('utf-8'))
-                    writeFile.close()
-                print("%s Received" % fileHeader)
+                    write_file.close()
+                print("%s Received" % file_header)
                 c.close()
-                self.received.append(fileHeader)
+                if file_header != "contacts.txt":
+                    self.received.append(file_header)
         except Exception as err_type:
             print(
                 "*** TCP SERVER \"%s\" error while trying to receive file ***" % err_type)
 
-    # Antiquated..
-    def receiveTEST(self, c):
-        """
-        ***ANTIQUATED***
-        Receive data between and host
-        """
-        try:
-            if c is not None:
-                while True:
-                    data = c.recv(1024).decode('utf-8')
-                    if not data:
-                        break
-                    print('From online user: ' + data)
-                    data = data.upper()
-                    c.send(data.encode('utf-8'))
-                    c.close()
-            else:
-                print(
-                    "*** TCP Server \"{}\" client has not been connected  to server***")
-        except Exception as err_type:
-            print(
-                "*** TCP Server \"{}\" error while trying to send***".format(err_type))
-
-    def data(self):
+    def __str__(self):
         print("Host is: {} and the port is {}".format(self.host, self.port))

@@ -79,7 +79,8 @@ class CLERNFDS(tk.Frame):
         self.contactEntry.grid(row=2, column=0, padx=5, sticky="w")
         self.contactEntry.insert(tk.INSERT, "3145567823")
         # Contact Add Button
-        addBtn = tk.Button(self.root, text="Add", command=lambda: self.addContact())
+        addBtn = tk.Button(self.root, text="Add",
+                           command=lambda: self.addContact())
         addBtn.grid(row=2, column=1, sticky="w")
 
         # Contact Delete Dropdown
@@ -87,7 +88,8 @@ class CLERNFDS(tk.Frame):
         dropDownLabel = tk.Label(self.root, text="Select a Contact to Remove")
         dropDownLabel.grid(row=3, column=0, columnspan=2, padx=10)
         # Delete Contact Button
-        delBtn = tk.Button(self.root, text="Delete", command=lambda: self.deleteContact())
+        delBtn = tk.Button(self.root, text="Delete",
+                           command=lambda: self.deleteContact())
         delBtn.grid(row=4, column=1, sticky="w")
         # Pull Contact List && Also calls the updateDropDown function where the options are allocated
         self.updateContacts()
@@ -99,7 +101,8 @@ class CLERNFDS(tk.Frame):
         # Draws the index drop down && Allocate Camera Indexes and put it into cameras.txt
         self.updateIndexDropDown()
         # Add an update button to refresh the drop down
-        delBtn = tk.Button(self.root, text="Refresh", command=lambda: self.updateIndexDropDown())
+        delBtn = tk.Button(self.root, text="Refresh",
+                           command=lambda: self.updateIndexDropDown())
         delBtn.grid(row=6, column=1, sticky="w")
 
         # instantiate a thread that updates the video feed
@@ -123,7 +126,8 @@ class CLERNFDS(tk.Frame):
         # TODO decomment when testing.
         #video = cv2.VideoCapture("test/test.mp4")
         self.stopEvent = threading.Event()
-        self.video = threading.Thread(target=self.videoLoop, args=(video,), daemon=True)
+        self.video = threading.Thread(
+            target=self.videoLoop, args=(video,), daemon=True)
         self.video.start()
 
     def generateCameraIndexes(self):
@@ -264,16 +268,17 @@ class CLERNFDS(tk.Frame):
             except Exception as e:
                 print("***Error*** errmsg=%s" % e)
         # Update the servers end.
-        threading.Thread(target=self.updateServer, args=("contacts.txt",), daemon=True).start()
+        threading.Thread(target=self.updateServer, args=(
+            "contacts.txt",), daemon=True).start()
         # Update the dropdown
         self.updateContactDropDown()
 
-    def updateServer(self, filename):
+    def updateServer(self, file_name):
         """
         Sends the contacts.txt
         :return:
         """
-        self.client.sendFile(filename)
+        self.client.sendFile(file_name)
 
     def videoLoop(self, vs):
         """
@@ -297,7 +302,8 @@ class CLERNFDS(tk.Frame):
                 if self.panel is None:
                     self.panel = tk.Label(image=image)
                     self.panel.image = image
-                    self.panel.grid(row=1, rowspan=100, column=2, padx=20, pady=5)
+                    self.panel.grid(row=1, rowspan=100,
+                                    column=2, padx=20, pady=5)
                 # otherwise, simply update the panel
                 else:
                     self.panel.configure(image=image)
@@ -306,7 +312,8 @@ class CLERNFDS(tk.Frame):
             vs.release()
             self.videoRunning = False
         except Exception as e:
-            print('***CLERN FDS GUI*** - "[%s] Error while running videoLoop"' % e)
+            print(
+                '***CLERN FDS GUI*** - "[%s] Error while running videoLoop"' % e)
         self.videoRunning = False
 
     def onClose(self):
@@ -346,7 +353,6 @@ if __name__ == "__main__":
     # TKINTER cannot be ran under process so it has to be either the last thing called or ran as a thread.
     t = ThreadPoolExecutor().submit(runCheck, main)
     main.loop()
-
 
     # main.mainloop()
     # client.sendFile("contacts.txt")
