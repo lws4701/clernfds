@@ -38,38 +38,33 @@ def frameProcesses(gui, frameClient):
     while gui.isRunning:
         print("New Index")
         index = int(gui.selectedIndex)
-        frame_rate = 5
 
-        # TODO replace when camera is accessible
-        #cap = cv2.VideoCapture("test/test.mp4")
-        # For when webcam is available
         cap = cv2.VideoCapture(index)
-        cap.set(cv2.CAP_PROP_FPS, 30)
+        archive_size = 5
+        cap.set(cv2.CAP_PROP_FPS, archive_size)
 
         frameCount = 0
         archiveCount = 0
         frames = []
-
         # open the cap (throwaway values)
         ret, frame = cap.read()
         it = time.time()
         while index == int(gui.selectedIndex) and cap.isOpened() and gui.isRunning:
             ret, frame = cap.read()
             frameCount += 1
-            if frameCount % 5 == 1:
-                file_name = 'Frames/' + str(time.time()) + '.jpg'
-                cv2.imwrite(file_name, frame)
-                frames.append(file_name)
-                print(f'{file_name} saved')
-            if frameCount == 25:
+            file_name = 'Frames/' + str(time.time()) + '.jpg'
+            cv2.imwrite(file_name, frame)
+            frames.append(file_name)
+            print(f'{file_name} saved')
+            if frameCount == archive_size:
                 archiveCount += 1
                 deliver(frames, archiveCount, frameClient)
                 frames.clear()
+                if archiveCount == 10:
+                    archiveCount = 0
                 frameCount = 0
                 print(f"{time.time() - it} seconds to collect and deliver archive.")
                 it = time.time()
-            # THIS IS FOR TEST DATA ONLY NOT WEBCAM USAGE TODO comment out when using webcam
-            # time.sleep(.033)  # time between frames in 30 fps for when putting in a mp4
         cap.release()
 
 
@@ -82,6 +77,7 @@ def deliver(frames, count, client):
     :return:
     """
     img_zip = Archive(str(count) + ".zip")
+    file_name = img_zip.file_name
     for frame in frames:
         img_zip.add(frame)
         print(f"{frame} added")
@@ -93,6 +89,7 @@ def deliver(frames, count, client):
     # sending frames to server
     img_zip.close()
     client.sendFile(img_zip.file_name)
+    os.remove(file_name)
 
 
 if __name__ == "__main__":

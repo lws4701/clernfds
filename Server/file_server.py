@@ -7,39 +7,53 @@ Description: This module serves as the start script for the
 '''
 from concurrent.futures.process import ProcessPoolExecutor
 from concurrent.futures.thread import ThreadPoolExecutor
+from multiprocessing import Process
+from time import sleep
+
 from Server.tcp_server import TCPServer
 from Server.archive import Archive
 import os
 import sys
 
 
+# Will not be as easy as the client side, because the listenLoop needs to be done as a process and processes cant talk
+# to each other as easily.
 def main():
+    processes = []
     clern_server = TCPServer()
-    ThreadPoolExecutor().submit(clern_server.listenLoop)
-    parent_dir = os.getcwd()
+
     if not (os.path.exists("./archives")):
         os.mkdir("./archives")
-    while True:
+    # Receives and Unpacks the zips sent from client-side.
+    processes.append(ProcessPoolExecutor().submit(clern_server.listenLoop))
+    # Looks for new archives collected
+    processes.append(ProcessPoolExecutor().submit(zipListener))
+
+    # Shut down loop
+    for process in processes:
+        process.result()
+
+
+def zipListener():
+    pass
+
+    """while True:
         # Actively listens for new zips
         if len(clern_server.receivedZips) > 0:
+            print(clern_server.receivedZips)
+            clern_server.receivedZips.pop()
             try:
-                while True:
-                    archive_name = clern_server.receivedZips.pop(0)
-                    frame_archive = Archive(archive_name)
-                    os.chdir("./archives")
-                    frame_archive.extract()
-                    os.chdir(parent_dir)
-                    os.remove("./%s" % frame_archive.file_name)
-                    print(f"{archive_name} unzipped and archived")
-                    # TODO put the motion detection logic below in the ProcessPoolExecutor
-                    # so if longer than expected it doesnt get hung-up on one sequence and slow down the entire process
-                    # eg.) ProcessPoolExecutor().submit(runFile, arg1, arg2)
-                    ProcessPoolExecutor().submit()
+                # archive_name = clern_server.receivedZips.pop(0)
+                # ThreadPoolExecutor.submit(extract, archive_name, parent_dir)
+                pass
+                # TODO put the motion detection logic below in the ProcessPoolExecutor
+                # so if longer than expected it doesnt get hung-up on one sequence and slow down the entire process
+                # eg.) ProcessPoolExecutor().submit(runFile, arg1, arg2)
+                # ProcessPoolExecutor().submit()
 
             except Exception as err_type:
                 print("\n***TCP SERVER %s error thrown during file transfer ***" % err_type)
-                clern_server.close()
-                sys.exit()
+                sys.exit()"""
 
 
 if __name__ == '__main__':
