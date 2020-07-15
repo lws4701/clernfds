@@ -7,39 +7,46 @@ Description: This module serves as the start script for the
 '''
 from concurrent.futures.process import ProcessPoolExecutor
 from concurrent.futures.thread import ThreadPoolExecutor
+from multiprocessing import Process
+from time import sleep
+
 from Server.tcp_server import TCPServer
 from Server.archive import Archive
 import os
 import sys
 
 
+"""
+Note to future self
+Use thread to view the server current server variables
+Then use that thread to call on actual processes for calculation. 
+"""
 def main():
+    processes = []
     clern_server = TCPServer()
-    ThreadPoolExecutor().submit(clern_server.listenLoop)
-    parent_dir = os.getcwd()
+
     if not (os.path.exists("./archives")):
         os.mkdir("./archives")
-    while True:
-        # Actively listens for new zips
-        if len(clern_server.receivedZips) > 0:
-            try:
-                while True:
-                    archive_name = clern_server.receivedZips.pop(0)
-                    frame_archive = Archive(archive_name)
-                    os.chdir("./archives")
-                    frame_archive.extract()
-                    os.chdir(parent_dir)
-                    os.remove("./%s" % frame_archive.file_name)
-                    print(f"{archive_name} unzipped and archived")
-                    # TODO put the motion detection logic below in the ProcessPoolExecutor
-                    # so if longer than expected it doesnt get hung-up on one sequence and slow down the entire process
-                    # eg.) ProcessPoolExecutor().submit(runFile, arg1, arg2)
-                    ProcessPoolExecutor().submit()
+    # Looks for new archives collected
+    processes.append(ThreadPoolExecutor().submit(zipListener, clern_server))
+    # Receives and Unpacks the zips sent from client-side.
+    #processes.append(ProcessPoolExecutor().submit(clern_server.listenLoop))
+    clern_server.listenLoop()
 
-            except Exception as err_type:
-                print("\n***TCP SERVER %s error thrown during file transfer ***" % err_type)
-                clern_server.close()
-                sys.exit()
+    # Shut down loop
+    for process in processes:
+        process.result()
+
+def process():
+    print("Worked")
+
+def zipListener(server):
+    pass
+    while True:
+        sleep(5)
+        print(server.receivedZips)
+        ProcessPoolExecutor().submit(process)
+
 
 
 if __name__ == '__main__':

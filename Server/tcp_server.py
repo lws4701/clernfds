@@ -1,5 +1,12 @@
+import importlib
+import os
+import shutil
 import socket
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
+from imp import reload
+
+from Server.archive import Archive
+from threading import Thread
 
 
 class TCPServer:
@@ -31,6 +38,9 @@ class TCPServer:
         self.s = socket.socket()
         self.s.bind((self.host, self.port))
 
+        if not (os.path.exists("./archives")):
+            os.mkdir("./archives")
+
     def listenLoop(self):
         """
         Main Functionality Loop.
@@ -58,7 +68,8 @@ class TCPServer:
             if c is not None:
                 file_header = c.recv(512).decode().strip()
                 response = file_header.upper() + " RECEIVED"
-                with open(file_header, "wb") as write_file:
+                write_header = file_header if (file_header == "contacts.txt") else "./archives/" + file_header
+                with open(write_header, "wb") as write_file:
                     while True:
                         bytes_read = c.recv(1024)
                         if not bytes_read:
@@ -71,10 +82,32 @@ class TCPServer:
                 print("%s Received" % file_header)
                 c.close()
                 if file_header != "contacts.txt":
-                    self.received.append(file_header)
+                    self.receivedZips.append(file_header)
+                    # ProcessPoolExecutor().submit(self.__unpack, write_header)
+                    Thread(target=self.__unpack, args=(write_header,), daemon=True).start()
         except Exception as err_type:
             print(
                 "*** TCP SERVER \"%s\" error while trying to receive file ***" % err_type)
+
+    def __unpack(self, archive_name):
+        parent_dir = os.getcwd()
+        frame_archive = Archive(archive_name)
+        folder = frame_archive.name_woextension
+        # You can also call this to remove a directory.
+        if os.path.exists(frame_archive.name_woextension):
+            for filename in os.listdir(folder):
+                file_path = os.path.join(folder, filename)
+                try:
+                    if os.path.isfile(file_path) or os.path.islink(file_path):
+                        os.unlink(file_path)
+                    elif os.path.isdir(file_path):
+                        shutil.rmtree(file_path)
+                except Exception as e:
+                    print('Failed to delete %s. Reason: %s' % (file_path, e))
+        frame_archive.extract()
+        os.chdir(parent_dir)
+        os.remove("./%s" % frame_archive.file_name)
+        print(f"{archive_name} unzipped and archived")
 
     def __str__(self):
         print("Host is: {} and the port is {}".format(self.host, self.port))
