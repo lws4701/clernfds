@@ -16,44 +16,37 @@ import os
 import sys
 
 
-# Will not be as easy as the client side, because the listenLoop needs to be done as a process and processes cant talk
-# to each other as easily.
+"""
+Note to future self
+Use thread to view the server current server variables
+Then use that thread to call on actual processes for calculation. 
+"""
 def main():
     processes = []
     clern_server = TCPServer()
 
     if not (os.path.exists("./archives")):
         os.mkdir("./archives")
-    # Receives and Unpacks the zips sent from client-side.
-    processes.append(ProcessPoolExecutor().submit(clern_server.listenLoop))
     # Looks for new archives collected
-    processes.append(ProcessPoolExecutor().submit(zipListener))
+    processes.append(ThreadPoolExecutor().submit(zipListener, clern_server))
+    # Receives and Unpacks the zips sent from client-side.
+    #processes.append(ProcessPoolExecutor().submit(clern_server.listenLoop))
+    clern_server.listenLoop()
 
     # Shut down loop
     for process in processes:
         process.result()
 
+def process():
+    print("Worked")
 
-def zipListener():
+def zipListener(server):
     pass
+    while True:
+        sleep(5)
+        print(server.receivedZips)
+        ProcessPoolExecutor().submit(process)
 
-    """while True:
-        # Actively listens for new zips
-        if len(clern_server.receivedZips) > 0:
-            print(clern_server.receivedZips)
-            clern_server.receivedZips.pop()
-            try:
-                # archive_name = clern_server.receivedZips.pop(0)
-                # ThreadPoolExecutor.submit(extract, archive_name, parent_dir)
-                pass
-                # TODO put the motion detection logic below in the ProcessPoolExecutor
-                # so if longer than expected it doesnt get hung-up on one sequence and slow down the entire process
-                # eg.) ProcessPoolExecutor().submit(runFile, arg1, arg2)
-                # ProcessPoolExecutor().submit()
-
-            except Exception as err_type:
-                print("\n***TCP SERVER %s error thrown during file transfer ***" % err_type)
-                sys.exit()"""
 
 
 if __name__ == '__main__':
