@@ -2,7 +2,6 @@
 clern_fds.py
 Author: Ryan Schildknecht
 Camera Ready
-Alter this and tkinter_gui.py as necessary to run testfiles.
 """
 
 import os
@@ -41,7 +40,8 @@ def frameProcesses(gui, frameClient):
 
         cap = cv2.VideoCapture(index)
         archive_size = 5
-        cap.set(cv2.CAP_PROP_FPS, archive_size)
+        # doesn't work on a webcam
+        cap.set(cv2.CAP_PROP_FPS, 30)
 
         frameCount = 0
         archiveCount = 0
@@ -52,11 +52,12 @@ def frameProcesses(gui, frameClient):
         while index == int(gui.selectedIndex) and cap.isOpened() and gui.isRunning:
             ret, frame = cap.read()
             frameCount += 1
-            file_name = 'Frames/' + str(time.time()) + '.jpg'
-            cv2.imwrite(file_name, frame)
-            frames.append(file_name)
-            print(f'{file_name} saved')
-            if frameCount == archive_size:
+            if frameCount % archive_size == 0:
+                file_name = 'Frames/' + str(time.time()) + '.jpg'
+                cv2.imwrite(file_name, frame)
+                frames.append(file_name)
+                print(f'{file_name} saved')
+            if frameCount == archive_size * archive_size:
                 archiveCount += 1
                 deliver(frames, archiveCount, frameClient)
                 frames.clear()
