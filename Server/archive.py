@@ -25,7 +25,8 @@ class Archive:
                   (file_name, self.zip_archive.file_name))"""
 
     def extract(self):
-        os.mkdir(self.name_woextension)
+        if not os.path.exists(self.name_woextension):
+            os.mkdir(self.name_woextension)
         os.chdir(self.name_woextension)
         self.zip_archive.extractall()
         self.zip_archive.close()

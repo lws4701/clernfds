@@ -15,7 +15,7 @@ class DetectorAPI:
             self.frame_array = frame_array
             self.mask = image_mask
         self.timestamp_array = timestamp_array
-        self.back_sub = cv.createBackgroundSubtractorKNN(dist2Threshold=1000)
+        self.back_sub = cv.createBackgroundSubtractorKNN()
 
     def background_subtract(self) -> None:
         '''
@@ -41,13 +41,14 @@ class DetectorAPI:
             contour = max(contours, key=cv.contourArea)
             x, y, w, h = cv.boundingRect(contour)
             box = [(x, y), ((x+w), y), (x, (y+h)), ((x+w), (y+h))]
-            # print(cv.boundingRect(contour))
-            cv.rectangle(self.frame_array[cur_image],
-                         (x, y), ((x+w), (y+h)), (255, 0, 0), 2)
-            cv.imshow('Backsub', self.frame_array[cur_image])
-            cv.waitKey(100)
-            img_name = "%s" % self.timestamp_array[cur_image]
-            rectangles[img_name] = box  # Returns (x, y, w, h) where
-            # (x,y) is the top left corner
-            # and the (w, h) is the width and height
+            if box != [(0, 0), (640, 0), (0, 480), (640, 480)]:
+                # print(cv.boundingRect(contour))
+                # cv.rectangle(self.frame_array[cur_image],
+                #              (x, y), ((x+w), (y+h)), (255, 0, 0), 2)
+                # cv.imshow('Backsub', self.frame_array[cur_image])
+                # cv.waitKey(30)
+                img_name = "%s" % self.timestamp_array[cur_image]
+                rectangles[img_name] = box  # Returns (x, y, w, h) where
+                # (x,y) is the top left corner
+                # and the (w, h) is the width and height
         return rectangles

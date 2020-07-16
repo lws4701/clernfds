@@ -11,7 +11,7 @@ def test():
     while True:
         sleep(5)
         # You can dynamically check which files have been received.
-        print(server.received)
+        print(server.receivedZips)
 
 
 test()

@@ -120,11 +120,8 @@ class CLERNFDS(tk.Frame):
         if self.videoRunning:
             self.stopEvent.set()
             self.video.join(timeout=1)
-        # TODO decomment when camera is accessible
         index = int(self.selectedIndex)
         video = cv2.VideoCapture(index)
-        # TODO decomment when testing.
-        #video = cv2.VideoCapture("test/test.mp4")
         self.stopEvent = threading.Event()
         self.video = threading.Thread(
             target=self.videoLoop, args=(video,), daemon=True)
