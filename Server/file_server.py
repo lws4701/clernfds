@@ -15,12 +15,13 @@ from Server.archive import Archive
 import os
 import sys
 
-
 """
 Note to future self
 Use thread to view the server current server variables
 Then use that thread to call on actual processes for calculation. 
 """
+
+
 def main():
     processes = []
     clern_server = TCPServer()
@@ -30,23 +31,37 @@ def main():
     # Looks for new archives collected
     processes.append(ThreadPoolExecutor().submit(zipListener, clern_server))
     # Receives and Unpacks the zips sent from client-side.
-    #processes.append(ProcessPoolExecutor().submit(clern_server.listenLoop))
+    # processes.append(ProcessPoolExecutor().submit(clern_server.listenLoop))
     clern_server.listenLoop()
 
     # Shut down loop
     for process in processes:
         process.result()
 
-def process():
-    print("Worked")
+
+def __listdir_nohidden(path):
+    '''For listing only visible files'''
+    fileList = []
+    for f in os.listdir(path):
+        if not f.startswith(('.')) and not (f.endswith('.zip')):
+            fileList.append(f)
+    return fileList
+
+
+def __falldetect(packet):
+    images = sorted(__listdir_nohidden(f"{packet}/Frames"))
+    print(images)
+
 
 def zipListener(server):
-    pass
     while True:
-        sleep(5)
-        print(server.receivedZips)
-        ProcessPoolExecutor().submit(process)
-
+        # There needs to be a sleep to work but it probably only needs to be only a fraction of a second.
+        sleep(5)  # You can tweak this if you want to work with a certain amount of packets of frames at once
+        # NOTE server only stores a max of 10 packets of frames at once so do not have too long.
+        while len(server.new_packets) > 0:
+            # There will be an unavoidable delay
+            print(server.new_packets)
+            ProcessPoolExecutor().submit(__falldetect, server.new_packets.pop(0))
 
 
 if __name__ == '__main__':

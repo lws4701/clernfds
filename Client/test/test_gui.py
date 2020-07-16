@@ -119,7 +119,7 @@ class CLERNFDS(tk.Frame):
     def updatePreview(self):
         if self.videoRunning:
             self.stopEvent.set()
-            self.video.join(timeout=1)
+            self.video.join(timeout=1.5)
         video = cv2.VideoCapture(self.selectedIndex)
         self.stopEvent = threading.Event()
         self.video = threading.Thread(

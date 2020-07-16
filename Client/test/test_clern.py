@@ -9,14 +9,14 @@ from concurrent.futures import ThreadPoolExecutor
 
 def main():
     # Ensure proper directories exist
-    if not(os.path.exists('Frames')):
+    if not (os.path.exists('Frames')):
         os.mkdir('Frames')
     # Start The ClientGUI
     gui = CLERNFDS(["test1.mp4", "test2.mp4"])
     # Init the Client being used to submit files
     client = TCPClient()
     # Get the frame deliverance loop started
-    transThread = ThreadPoolExecutor().submit(frameProcesses, gui, client,)
+    transThread = ThreadPoolExecutor().submit(frameProcesses, gui, client, )
     # Run the mainloop
 
     gui.loop()
@@ -51,18 +51,18 @@ def frameProcesses(gui, frameClient):
                 print(f'{file_name} saved')
             if frameCount == 25:
                 archiveCount += 1
-                deliver(frames, archiveCount, frameClient)
+                __deliver(frames, archiveCount, frameClient)
                 frames.clear()
                 frameCount = 0
                 if archiveCount == 10:
                     archiveCount = 0
                 print(f"{time.time() - it} seconds to collect and deliver archive.")
                 it = time.time()
-            time.sleep(.033)  # time between frames in 30 fps for when putting in a mp4
+            time.sleep(.03)  # time between frames in 30 fps for when putting in a mp4
         cap.release()
 
 
-def deliver(frames, count, client):
+def __deliver(frames, count, client):
     """
     Creates an Archive of Collected Frames.
     Sends that Archive

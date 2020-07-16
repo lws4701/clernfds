@@ -18,7 +18,7 @@ class TCPServer:
     host = None  # server address eg.) 127.0.0.1 (local)
     port = None  # port number eg.) 1025–65535
     s = None
-    receivedZips = []
+    new_packets = []
 
     def __init__(self, host: str = socket.gethostname(), port: int = 8080):
         """
@@ -82,8 +82,7 @@ class TCPServer:
                 print("%s Received" % file_header)
                 c.close()
                 if file_header != "contacts.txt":
-                    self.receivedZips.append(file_header)
-                    # ProcessPoolExecutor().submit(self.__unpack, write_header)
+                    self.new_packets.append(write_header[:-4])
                     Thread(target=self.__unpack, args=(write_header,), daemon=True).start()
         except Exception as err_type:
             print(
