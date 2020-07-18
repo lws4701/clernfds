@@ -114,7 +114,7 @@ class CLERNFDS(tk.Frame):
 
     def loop(self):
         self.is_running = True
-        self.main.loop()
+        self.mainloop()
 
     def update_preview(self):
         if self.video_running:
