@@ -9,7 +9,7 @@ from concurrent.futures.thread import ThreadPoolExecutor
 import threading
 import cv2
 import json
-import phonenumbers
+import phone_numbers
 from Client.tcp_client import TCPClient
 
 
@@ -32,23 +32,23 @@ class CLERNFDS(tk.Frame):
     # GUI has separate client object for concurrent delivery.
     client = None
     # For concurrent processes to end when the GUI closes
-    isRunning = False
+    is_running = False
     # Memory Location for contact list
-    contactList = dict()
+    contact_list = dict()
 
     # Video feed
     video = None
-    stopEvent = None
+    stop_event = None
     frame = None
-    videoRunning = False
+    video_running = False
     # actual viewpoint of video preview.
     panel = None
 
     # selected contact
-    selectedContact = None
+    selected_contact = None
 
     # selected index
-    selectedIndex = None
+    selected_index = None
     # available cameras
     cameras = dict()
 
@@ -72,61 +72,61 @@ class CLERNFDS(tk.Frame):
         title.grid(row=0, column=0, columnspan=3)
         # Contact Input Box
         # Create Label
-        inputLabel = tk.Label(self.root, text="Enter a Valid Contact Phone #")
-        inputLabel.grid(row=1, column=0, columnspan=2, padx=10)
-        self.contactEntry = tk.Entry(self.root, width=12)
-        self.contactEntry.grid(row=2, column=0, padx=5, sticky="w")
-        self.contactEntry.insert(tk.INSERT, "3145567823")
+        input_label = tk.Label(self.root, text="Enter a Valid Contact Phone #")
+        input_label.grid(row=1, column=0, columnspan=2, padx=10)
+        self.contact_entry = tk.Entry(self.root, width=12)
+        self.contact_entry.grid(row=2, column=0, padx=5, sticky="w")
+        self.contact_entry.insert(tk.INSERT, "3145567823")
         # Contact Add Button
-        addBtn = tk.Button(self.root, text="Add",
-                           command=lambda: self.addContact())
-        addBtn.grid(row=2, column=1, sticky="w")
+        add_btn = tk.Button(self.root, text="Add",
+                           command=lambda: self.add_contact())
+        add_btn.grid(row=2, column=1, sticky="w")
 
         # Contact Delete Dropdown
         # Create Label
-        dropDownLabel = tk.Label(self.root, text="Select a Contact to Remove")
-        dropDownLabel.grid(row=3, column=0, columnspan=2, padx=10)
+        drop_down_label = tk.Label(self.root, text="Select a Contact to Remove")
+        drop_down_label.grid(row=3, column=0, columnspan=2, padx=10)
         # Delete Contact Button
-        delBtn = tk.Button(self.root, text="Delete",
-                           command=lambda: self.deleteContact())
-        delBtn.grid(row=4, column=1, sticky="w")
+        del_btn = tk.Button(self.root, text="Delete",
+                           command=lambda: self.delete_contact())
+        del_btn.grid(row=4, column=1, sticky="w")
         # Pull Contact List && Also calls the updateDropDown function where the options are allocated
-        self.updateContacts()
+        self.update_contacts()
 
         # Camera Index Dropdown
         self.test_videos = video_array
         # Select Camera Index Label
-        dropDownLabel = tk.Label(self.root, text="Select Camera Index")
-        dropDownLabel.grid(row=5, column=0, columnspan=2, padx=10)
+        drop_down_label = tk.Label(self.root, text="Select Camera Index")
+        drop_down_label.grid(row=5, column=0, columnspan=2, padx=10)
         # Draws the index drop down && Allocate Camera Indexes and put it into cameras.txt
-        self.updateIndexDropDown()
+        self.update_index_drop_down()
         # Add an update button to refresh the drop down
-        delBtn = tk.Button(self.root, text="Refresh",
-                           command=lambda: self.updateIndexDropDown())
-        delBtn.grid(row=6, column=1, sticky="w")
+        del_btn = tk.Button(self.root, text="Refresh",
+                           command=lambda: self.update_index_drop_down())
+        del_btn.grid(row=6, column=1, sticky="w")
 
         # instantiate a thread that updates the video feed
-        self.updatePreview()
+        self.update_preview()
 
         # set a callback to handle when the window is closed
         self.root.wm_title("CLERN Fall Detection System")
-        self.root.wm_protocol("WM_DELETE_WINDOW", self.onClose)
+        self.root.wm_protocol("WM_DELETE_WINDOW", self.on_close)
 
     def loop(self):
-        self.isRunning = True
-        self.mainloop()
+        self.is_running = True
+        self.main.loop()
 
-    def updatePreview(self):
-        if self.videoRunning:
-            self.stopEvent.set()
+    def update_preview(self):
+        if self.video_running:
+            self.stop_event.set()
             self.video.join(timeout=1.5)
-        video = cv2.VideoCapture(self.selectedIndex)
-        self.stopEvent = threading.Event()
+        video = cv2.VideoCapture(self.selected_index)
+        self.stop_event = threading.Event()
         self.video = threading.Thread(
-            target=self.videoLoop, args=(video,), daemon=True)
+            target=self.video_loop, args=(video,), daemon=True)
         self.video.start()
 
-    def generateCameraIndexes(self):
+    def generate_camera_indexes(self):
         """
         Gets all accessible camera indexes to a max of ten and puts them in a dict
         under self.cameras["indexes"]
@@ -134,111 +134,111 @@ class CLERNFDS(tk.Frame):
         """
         self.cameras["indexes"] = self.test_videos
 
-    def updateIndexDropDown(self):
+    def update_index_drop_down(self):
         """
         Updates the dropdown selection of indexes
         :return:
         """
-        self.generateCameraIndexes()
+        self.generate_camera_indexes()
         print(self.cameras["indexes"])
         first = tk.StringVar(self.root)
         if len(self.cameras["indexes"]) == 0:
             first.set("0")
-            self.selectedIndex = first.get()
-            self.indexDropdown = tk.OptionMenu(self.root, first, 0,
-                                               command=lambda val: self.updateSelectedIndex(val))
+            self.selected_index = first.get()
+            self.index_drop_down = tk.OptionMenu(self.root, first, 0,
+                                               command=lambda val: self.update_selected_index(val))
         else:
             first.set(self.cameras["indexes"][0])
-            self.selectedIndex = first.get()
-            self.indexDropdown = tk.OptionMenu(self.root, first, *self.cameras['indexes'],
-                                               command=lambda val: self.updateSelectedIndex(val))
-        self.indexDropdown.grid(row=6, column=0, padx=5, sticky="w")
+            self.selected_index = first.get()
+            self.index_drop_down = tk.OptionMenu(self.root, first, *self.cameras['indexes'],
+                                               command=lambda val: self.update_selected_index(val))
+        self.index_drop_down.grid(row=6, column=0, padx=5, sticky="w")
 
-    def updateSelectedIndex(self, val):
+    def update_selected_index(self, val):
         """
-        Helper function to updateIndexDropDown
+        Helper function to update_index_drop_down
         :param val:
         :return:
         """
-        self.selectedIndex = val
-        self.updatePreview()  # changes video preview to current index.
+        self.selected_index = val
+        self.update_preview()  # changes video preview to current index.
 
-    def updateContactDropDown(self):
+    def update_contact_drop_down(self):
         """
         Updates the tkinter contact removal dropdown
         :return:
         """
         first = tk.StringVar(self.root)
-        if len(self.contactList["contacts"]) == 0:
+        if len(self.contact_list["contacts"]) == 0:
             first.set("---None---")
-            self.selectedContact = first.get()
-            self.contactDropdown = tk.OptionMenu(self.root, first, None,
-                                                 command=lambda val: self.updateSelectedContact(val))
+            self.selected_contact = first.get()
+            self.contact_drop_down = tk.OptionMenu(self.root, first, None,
+                                                 command=lambda val: self.update_selected_contact(val))
         else:
-            first.set(self.contactList["contacts"][0])
-            self.selectedContact = first.get()
-            self.contactDropdown = tk.OptionMenu(self.root, first, *self.contactList['contacts'],
-                                                 command=lambda val: self.updateSelectedContact(val))
-        self.contactDropdown.grid(row=4, column=0, padx=5, sticky="w")
+            first.set(self.contact_list["contacts"][0])
+            self.selected_contact = first.get()
+            self.contact_drop_down = tk.OptionMenu(self.root, first, *self.contact_list['contacts'],
+                                                 command=lambda val: self.update_selected_contact(val))
+        self.contact_drop_down.grid(row=4, column=0, padx=5, sticky="w")
 
-    def updateSelectedContact(self, val):
+    def update_selected_contact(self, val):
         """
-        Helper function to updateContactDropDown
+        Helper function to update_contact_drop_down
         :param val:
         :return:
         """
-        self.selectedContact = int(val)
+        self.selected_contact = int(val)
 
-    def addContact(self):
+    def add_contact(self):
         """
         Validates phone number then adds it to the contacts.txt
         then updates the contact dropdown
         :return:
         """
-        contact = self.contactEntry.get()
-        contact = phonenumbers.parse(contact, "US")
+        contact = self.contact_entry.get()
+        contact = phone_numbers.parse(contact, "US")
 
         print(contact)
-        if phonenumbers.is_valid_number(contact):
-            self.contactList['contacts'].append(contact.national_number)
+        if phone_numbers.is_valid_number(contact):
+            self.contact_list['contacts'].append(contact.national_number)
             while True:
                 try:
                     with open("contacts.txt", 'w') as json_file:
                         print("Contact Added")
-                        json.dump(self.contactList, json_file)
+                        json.dump(self.contact_list, json_file)
                         json_file.close()
                     break
                 except Exception as e:
                     print("***Error: File Currently Open*** errmsg=%s" % e)
-            self.updateContacts()
+            self.update_contacts()
         else:
             print("Invalid Number")
-            self.contactEntry.delete(0, tk.END)
-            self.contactEntry.insert(0, "INVALID #")
+            self.contact_entry.delete(0, tk.END)
+            self.contact_entry.insert(0, "INVALID #")
 
-    def deleteContact(self):
+    def delete_contact(self):
         """
         Deletes contact selected on the contact dropdown
         :return:
         """
-        print(self.selectedContact)
-        print(self.contactList['contacts'])
-        if self.selectedContact == "---None---":
+        print(self.selected_contact)
+        print(self.contact_list['contacts'])
+        if self.selected_contact == "---None---":
             print("Contact List is empty")
             return
-        self.contactList['contacts'].remove(int(self.selectedContact))
+        self.contact_list['contacts'].remove(int(self.selected_contact))
         while True:
             try:
                 with open("contacts.txt", 'w') as json_file:
-                    print("%s Deleted" % self.selectedContact)
-                    json.dump(self.contactList, json_file)
+                    print("%s Deleted" % self.selected_contact)
+                    json.dump(self.contact_list, json_file)
                     json_file.close()
                 break
             except Exception as e:
                 print("***Error: File Currently Open*** errmsg=%s" % e)
-        self.updateContacts()
+        self.update_contacts()
 
-    def updateContacts(self):
+    def update_contacts(self):
         """
         Pulls the contacts from the contacts.txt and loads them onto memory
         :return:
@@ -246,33 +246,33 @@ class CLERNFDS(tk.Frame):
         while True:
             try:
                 with open('contacts.txt') as json_file:
-                    self.contactList = json.load(json_file)
+                    self.contact_list = json.load(json_file)
                     print("Contacts Updated")
                     json_file.close()
                 break
             except Exception as e:
                 print("***Error*** errmsg=%s" % e)
         # Update the servers end.
-        threading.Thread(target=self.updateServer, args=(
+        threading.Thread(target=self.update_server, args=(
             "contacts.txt",), daemon=True).start()
         # Update the dropdown
-        self.updateContactDropDown()
+        self.update_contact_drop_down()
 
-    def updateServer(self, file_name):
+    def update_server(self, file_name):
         """
         Sends the contacts.txt
         :return:
         """
-        self.client.sendFile(file_name)
+        self.client.send_file(file_name)
 
-    def videoLoop(self, vs):
+    def video_loop(self, vs):
         """
         Pulls video from the video stream from given index selected
         :return:
         """
-        self.videoRunning = True
+        self.video_running = True
         try:
-            while not self.stopEvent.is_set():
+            while not self.stop_event.is_set():
                 # grab the frame from the video
                 ret, self.frame = vs.read()
                 if self.frame is None:
@@ -295,27 +295,27 @@ class CLERNFDS(tk.Frame):
                     self.panel.image = image
                 cv2.waitKey(20)
             vs.release()
-            self.videoRunning = False
+            self.video_running = False
         except Exception as e:
             print(
-                '***CLERN FDS GUI*** - "[%s] Error while running videoLoop"' % e)
-        self.videoRunning = False
+                '***CLERN FDS GUI*** - "[%s] Error while running video_loop"' % e)
+        self.video_running = False
 
-    def onClose(self):
+    def on_close(self):
         """
         Essentially the Destructor Call
         :return:
         """
         print("CLERN FDS closing...")
         # stop concurrent processes
-        self.isRunning = False
+        self.is_running = False
         # set the stop event
-        self.stopEvent.set()
+        self.stop_event.set()
         # GUI Hangs until the program it is running inside comes to an end
         self.root.quit()
 
 
-def runCheck(gui):
+def run_check(gui):
     """
     Concurrent runtime loop that runs alongside the CLERN GUI
     :param gui:
@@ -326,9 +326,9 @@ def runCheck(gui):
     while True:
         sleep(1)  # Checks for changes every 5 seconds
         print("iteration")
-        while gui.isRunning == True:
+        while gui.is_running == True:
             sleep(1)
-            print(gui.selectedContact)
+            print(gui.selected_contact)
         break
 
 

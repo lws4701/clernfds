@@ -16,7 +16,7 @@ def main():
     # Init the Client being used to submit files
     client = TCPClient()
     # Get the frame deliverance loop started
-    transThread = ThreadPoolExecutor().submit(frameProcesses, gui, client, )
+    transThread = ThreadPoolExecutor().submit(frame_processes, gui, client, )
     # Run the mainloop
 
     gui.loop()
@@ -24,7 +24,7 @@ def main():
     print("Program Closed")
 
 
-def frameProcesses(gui, frameClient):
+def frame_processes(gui, frameClient):
     while not gui.isRunning:
         pass
     # Frame Deliverance

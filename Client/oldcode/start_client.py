@@ -28,14 +28,14 @@ def main():
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
         if len(files) >= 5:
-            sendFiles(files, client)
+            send_files(files, client)
 
     # Release everything if job is finished
     cap.release()
     cv2.destroyAllWindows()
 
 
-def sendFiles(files, client):
+def send_files(files, client):
     # creating zip of frames to send
     img_zip = Archive()
     parent_dir = os.getcwd()
