@@ -34,7 +34,7 @@ class TCPClient:
             print(
                 f"*** TCP Client \"{err_type}\" error while connecting to server***")
 
-    def sendFile(self, file_name):
+    def send_file(self, file_name):
         """Send file from client to server"""
         self.__connect()
         try:
@@ -42,22 +42,22 @@ class TCPClient:
                 if file_name is None:
                     print("No file selected to send")
                 else:
-                    fileSize = os.path.getsize(file_name)
+                    file_size = os.path.getsize(file_name)
                     # Send header with file_name and size
                     header = os.path.basename(file_name).ljust(512)
                     self.s.sendall(header.encode('utf-8'))
                     # Send file as bytestring
-                    with open(file_name, "rb") as sendingFile:
+                    with open(file_name, "rb") as sending_file:
                         sent = 0
                         response = None
-                        while sent < fileSize:
-                            bytes_read = sendingFile.read(1024)
+                        while sent < file_size:
+                            bytes_read = sending_file.read(1024)
                             self.s.sendall(bytes_read)
                             sent += 1024
                             #print("+", end="")
                             # TCP Response
                             response = self.s.recv(1024).decode('utf-8')
-                    sendingFile.close()
+                    sending_file.close()
                     print("Server Response = %s" % response)
                     # os.remove(file_name)
         except Exception as err_type:

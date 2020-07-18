@@ -22,48 +22,48 @@ def main():
     # Init the Client being used to submit files
     client = TCPClient()
     # Get the frame deliverance loop started
-    transThread = ThreadPoolExecutor().submit(frameProcesses, gui, client)
+    trans_thread = ThreadPoolExecutor().submit(frame_processes, gui, client)
     # Run the mainloop
 
     gui.loop()
-    transThread.result()
+    trans_thread.result()
     print("Program Closed")
 
 
-def frameProcesses(gui, frameClient):
-    while not gui.isRunning:
+def frame_processes(gui, frameClient):
+    while not gui.is_running:
         pass
     # Frame Deliverance
-    while gui.isRunning:
+    while gui.is_running:
         print("New Index")
-        index = int(gui.selectedIndex)
+        index = int(gui.selected_index)
 
         cap = cv2.VideoCapture(index)
         archive_size = 5
         # doesn't work on a webcam
         cap.set(cv2.CAP_PROP_FPS, 30)
 
-        frameCount = 0
-        archiveCount = 0
+        frame_count = 0
+        archive_count = 0
         frames = []
         # open the cap (throwaway values)
         ret, frame = cap.read()
         it = time.time()
-        while index == int(gui.selectedIndex) and cap.isOpened() and gui.isRunning:
+        while index == int(gui.selected_index) and cap.isOpened() and gui.is_running:
             ret, frame = cap.read()
-            frameCount += 1
-            if frameCount % archive_size == 0:
+            frame_count += 1
+            if frame_count % archive_size == 0:
                 file_name = 'Frames/' + str(time.time()) + '.jpg'
                 cv2.imwrite(file_name, frame)
                 frames.append(file_name)
                 print(f'{file_name} saved')
-            if frameCount == archive_size * archive_size:
-                archiveCount += 1
-                deliver(frames, archiveCount, frameClient)
+            if frame_count == archive_size * archive_size:
+                archive_count += 1
+                deliver(frames, archive_count, frameClient)
                 frames.clear()
-                if archiveCount == 10:
-                    archiveCount = 0
-                frameCount = 0
+                if archive_count == 10:
+                    archive_count = 0
+                frame_count = 0
                 print(f"{time.time() - it} seconds to collect and deliver archive.")
                 it = time.time()
         cap.release()
@@ -89,7 +89,7 @@ def deliver(frames, count, client):
             print(f"{frame} does not exist")
     # sending frames to server
     img_zip.close()
-    client.sendFile(img_zip.file_name)
+    client.send_file(img_zip.file_name)
     os.remove(file_name)
 
 

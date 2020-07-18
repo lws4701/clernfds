@@ -12,6 +12,7 @@ import cv2
 from Server.backsub import DetectorAPI
 import time
 
+
 class MotionDetector:
 
     frames = list()
@@ -65,7 +66,6 @@ class Frame:
                 + '}'
 
 
-
 class DetectedPerson:
     """
     This class represents a foreground object that has been detected within a frame. It holds
@@ -114,7 +114,6 @@ class DetectedPerson:
                 + '\t' + 'length_of_diag: ' + str(self.length_of_diag) + ' pixels' + '\n' \
                 + '\t' + 'angle_of_diag: ' + str(self.angle_of_diag) + ' radians' + '\n' \
                 + '}'
-
 
 
 class MotionData:
@@ -188,17 +187,17 @@ class MotionData:
         self.motion_vector = (end_center[0] - start_center[0], end_center[1] - start_center[1])
 
         # Basically just the length of the line formed by the start center point and end center point
-        self.velocity = self.calcVelocity(start_center, end_center)
+        self.velocity = self.calc_velocity(start_center, end_center)
 
         # The Angle, measured in radians, of the line of velocity
-        self.direction = self.calcDirection(start_center, end_center)
+        self.direction = self.calc_direction(start_center, end_center)
 
         self.diag_angle_change = round(end_frame.detected_person.angle_of_diag - start_frame.detected_person.angle_of_diag, 4)
         self.diag_length_change = round(end_frame.detected_person.length_of_diag - start_frame.detected_person.length_of_diag, 4)
         self.height_change = end_frame.detected_person.height - start_frame.detected_person.height
         self.width_change = end_frame.detected_person.width - start_frame.detected_person.width
 
-    def calcVelocity(self, start_point, end_point) -> float:
+    def calc_velocity(self, start_point, end_point) -> float:
         """
         This functions takes in a start_point and end_point and uses the pythagorean
         theorem to find the straight line distance between them on a 2D plane.
@@ -212,7 +211,7 @@ class MotionData:
         end_y = end_point[1]
         return round(math.sqrt(abs(end_x - start_x) ** 2 + abs(end_y - start_y) ** 2), 4)
 
-    def calcDirection(self, start_point, end_point) -> float:
+    def calc_direction(self, start_point, end_point) -> float:
         """
         This functions takes in a start_point and end_point and calculates the counterclockwise angle
         by treating the start_point as the origin and then finding what angle is formed by the positive x-axis
@@ -260,6 +259,7 @@ def main():
         motion_detector = MotionDetector(test_data)
         result = motion_detector.motion_data_from_frames()
         frames = motion_detector.get_frame_objects()
+
         fall_counter = 0
         for obj in result:
             if (abs(obj.start_frame.detected_person.angle_of_diag) <= (math.pi/4)) or (obj.velocity <= 10 or obj.velocity >= 35):
