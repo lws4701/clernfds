@@ -107,6 +107,7 @@ class TCPServer:
         os.chdir(parent_dir)
         os.remove("./%s" % frame_archive.file_name)
         print(f"{archive_name} unzipped and archived")
+        self.new_packets.append(archive_name[:-4])
 
     def __str__(self):
         print("Host is: {} and the port is {}".format(self.host, self.port))
