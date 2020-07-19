@@ -41,7 +41,7 @@ class TCPServer:
         if not (os.path.exists("./archives")):
             os.mkdir("./archives")
 
-    def listenLoop(self):
+    def listen_loop(self):
         """
         Main Functionality Loop.
         Run in separate thread in the start_server file.
@@ -53,12 +53,12 @@ class TCPServer:
                 c, c_address = self.s.accept()
                 print("Connection from: {}".format(str(c_address)))
                 # Receives file while listening to next file.
-                ThreadPoolExecutor().submit(self.__receiveFile, c)
+                ThreadPoolExecutor().submit(self.receive_file, c)
         except Exception as err_type:
             print(
                 "*** TCP Server \"{}\" error while connecting client to server***".format(err_type))
 
-    def __receiveFile(self, c):
+    def receive_file(self, c):
         """
         Receive file from client
         :param c: //Client
@@ -82,12 +82,13 @@ class TCPServer:
                 print("%s Received" % file_header)
                 c.close()
                 if file_header != "contacts.txt":
-                    Thread(target=self.__unpack, args=(write_header,), daemon=True).start()
+                    self.new_packets.append(write_header[:-4])
+                    Thread(target=self.unpack, args=(write_header,), daemon=True).start()
         except Exception as err_type:
             print(
                 "*** TCP SERVER \"%s\" error while trying to receive file ***" % err_type)
 
-    def __unpack(self, archive_name):
+    def unpack(self, archive_name):
         parent_dir = os.getcwd()
         frame_archive = Archive(archive_name)
         folder = frame_archive.name_woextension

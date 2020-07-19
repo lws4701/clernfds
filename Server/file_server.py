@@ -29,7 +29,7 @@ def main():
     if not (os.path.exists("./archives")):
         os.mkdir("./archives")
     # Looks for new archives collected
-    processes.append(ThreadPoolExecutor().submit(zipListener, clern_server))
+    processes.append(ThreadPoolExecutor().submit(zip_listener, clern_server))
     # Receives and Unpacks the zips sent from client-side.
     # processes.append(ProcessPoolExecutor().submit(clern_server.listenLoop))
     clern_server.listenLoop()
@@ -39,7 +39,7 @@ def main():
         process.result()
 
 
-def __listdir_nohidden(path):
+def listdir_nohidden(path):
     '''For listing only visible files'''
     fileList = []
     for f in os.listdir(path):
@@ -48,12 +48,12 @@ def __listdir_nohidden(path):
     return fileList
 
 
-def __falldetect(packet):
-    images = sorted(__listdir_nohidden(f"{packet}/Frames"))
+def fall_detect(packet):
+    images = sorted(listdir_nohidden(f"{packet}/Frames"))
     print(images)
 
 
-def zipListener(server):
+def zip_listener(server):
     while True:
         # There needs to be a sleep to work but it probably only needs to be only a fraction of a second.
         sleep(5)  # You can tweak this if you want to work with a certain amount of packets of frames at once
@@ -61,7 +61,7 @@ def zipListener(server):
         while len(server.new_packets) > 0:
             # There will be an unavoidable delay
             print(server.new_packets)
-            ProcessPoolExecutor().submit(__falldetect, server.new_packets.pop(0))
+            ProcessPoolExecutor().submit(fall_detect, server.new_packets.pop(0))
 
 
 if __name__ == '__main__':
