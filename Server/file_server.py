@@ -32,7 +32,7 @@ def main():
     processes.append(ThreadPoolExecutor().submit(zip_listener, clern_server))
     # Receives and Unpacks the zips sent from client-side.
     # processes.append(ProcessPoolExecutor().submit(clern_server.listenLoop))
-    clern_server.listenLoop()
+    clern_server.listen_loop()
 
     # Shut down loop
     for process in processes:
