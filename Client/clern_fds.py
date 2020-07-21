@@ -30,7 +30,7 @@ def main():
     print("Program Closed")
 
 
-def frame_processes(gui, frameClient):
+def frame_processes(gui, frame_client):
     while not gui.is_running:
         pass
     # Frame Deliverance
@@ -59,7 +59,7 @@ def frame_processes(gui, frameClient):
                 print(f'{file_name} saved')
             if frame_count == archive_size * archive_size:
                 archive_count += 1
-                deliver(frames, archive_count, frameClient)
+                deliver(frames, archive_count, frame_client)
                 frames.clear()
                 if archive_count == 10:
                     archive_count = 0

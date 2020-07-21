@@ -9,7 +9,7 @@ from concurrent.futures.thread import ThreadPoolExecutor
 import threading
 import cv2
 import json
-import phone_numbers
+import phonenumbers
 from Client.tcp_client import TCPClient
 
 
@@ -196,10 +196,10 @@ class CLERNFDS(tk.Frame):
         :return:
         """
         contact = self.contact_entry.get()
-        contact = phone_numbers.parse(contact, "US")
+        contact = phonenumbers.parse(contact, "US")
 
         print(contact)
-        if phone_numbers.is_valid_number(contact):
+        if phonenumbers.is_valid_number(contact):
             self.contact_list['contacts'].append(contact.national_number)
             while True:
                 try:

@@ -25,12 +25,12 @@ def main():
 
 
 def frame_processes(gui, frameClient):
-    while not gui.isRunning:
+    while not gui.is_running:
         pass
     # Frame Deliverance
-    while gui.isRunning:
+    while gui.is_running:
         print("New Index")
-        index = gui.selectedIndex
+        index = gui.selected_index
 
         cap = cv2.VideoCapture(index)
 
@@ -41,7 +41,7 @@ def frame_processes(gui, frameClient):
         # open the cap (throwaway values)
         ret, frame = cap.read()
         it = time.time()
-        while index == gui.selectedIndex and cap.isOpened() and gui.isRunning:
+        while index == gui.selected_index and cap.isOpened() and gui.is_running:
             ret, frame = cap.read()
             frameCount += 1
             if frameCount % 5 == 1:
@@ -82,7 +82,7 @@ def __deliver(frames, count, client):
             print(f"{frame} does not exist")
     # sending frames to server
     img_zip.close()
-    client.sendFile(img_zip.file_name)
+    client.send_file(img_zip.file_name)
     os.remove(file_name)
 
 
