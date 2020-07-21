@@ -10,8 +10,6 @@ import math
 import os
 import cv2
 from Server.backsub import DetectorAPI
-import time
-from Server.fall_detector import get_fall_score
 
 
 class MotionDetector:
@@ -238,44 +236,3 @@ class MotionData:
                 + '\t' + 'height_change: ' + str(self.height_change) + ' pixels' + '\n' \
                 + '\t' + 'width_change: ' + str(self.width_change) + ' pixels' + '\n' \
                 + '}'
-
-
-def main():
-    if __name__ == "__main__":
-
-        # model_path = 'test/faster_rcnn_inception_v2_coco/frozen_inference_graph.pb'
-        # odapi = DetectorAPI(path_to_ckpt=model_path)
-        parent_dir = os.getcwd()
-        frame_packet = sorted(os.listdir('./test/img1/fall-10'))
-        os.chdir('test/img1/fall-10')
-        frame_packet = [x for x in frame_packet if x.endswith('.png')]
-        start_time = time.time()
-        frame_packets = [cv2.imread(x) for x in frame_packet]
-        os.chdir(parent_dir)
-        dapi = DetectorAPI(frame_packets, frame_packet)
-        dapi.background_subtract()
-        # test_data = odapi.processPacket(frame_packet)
-        test_data = dapi.get_rectangles()
-        #print(test_data)
-        motion_detector = MotionDetector(test_data)
-        result = motion_detector.motion_data_from_frames()
-        frames = motion_detector.get_frame_objects()
-
-        fall_counter = 0
-        for obj in result:
-            fall_score = get_fall_score(obj)
-            if fall_score == 0:
-                fall_counter = 0
-            else:
-                fall_counter += fall_score
-            if fall_counter >= 22:
-                fall_counter = 0
-                print("fall detected at frame %s" % obj.end_frame.frame_id)
-        # for obj in frames:
-        end_time = time.time()
-        print(end_time - start_time)
-
-
-
-main()
-
