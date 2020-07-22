@@ -12,7 +12,7 @@ def main():
     if not (os.path.exists('Frames')):
         os.mkdir('Frames')
     # Start The ClientGUI
-    gui = CLERNFDS(["test1.mp4", "test2.mp4"])
+    gui = CLERNFDS(["fall.mp4"])
     # Init the Client being used to submit files
     client = TCPClient()
     # Get the frame deliverance loop started
@@ -44,12 +44,12 @@ def frame_processes(gui, frameClient):
         while index == gui.selected_index and cap.isOpened() and gui.is_running:
             ret, frame = cap.read()
             frameCount += 1
-            if frameCount % 5 == 1:
+            if frameCount % 3 == 0:
                 file_name = 'Frames/' + str(time.time()) + '.jpg'
                 cv2.imwrite(file_name, frame)
                 frames.append(file_name)
                 print(f'{file_name} saved')
-            if frameCount == 25:
+            if frameCount == 30:
                 archiveCount += 1
                 __deliver(frames, archiveCount, frameClient)
                 frames.clear()
