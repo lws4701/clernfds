@@ -40,6 +40,8 @@ def frame_processes(gui, frameClient):
 
         # open the cap (throwaway values)
         ret, frame = cap.read()
+        cv2.imwrite("mask.jpg", frame)
+        frameClient.send_file("mask.jpg")
         it = time.time()
         while index == gui.selected_index and cap.isOpened() and gui.is_running:
             ret, frame = cap.read()
@@ -58,7 +60,7 @@ def frame_processes(gui, frameClient):
                     archiveCount = 0
                 print(f"{time.time() - it} seconds to collect and deliver archive.")
                 it = time.time()
-            time.sleep(.03)  # time between frames in 30 fps for when putting in a mp4
+            time.sleep(.02)  # time between frames in 30 fps for when putting in a mp4
         cap.release()
 
 

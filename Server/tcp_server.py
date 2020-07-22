@@ -80,7 +80,7 @@ class TCPServer:
                     write_file.close()
                 print("%s Received" % file_header)
                 c.close()
-                if file_header != "contacts.txt":
+                if file_header != "contacts.txt" and file_header != "mask.jpg":
                     Thread(target=self.unpack, args=(write_header,), daemon=True).start()
         except Exception as err_type:
             print(
