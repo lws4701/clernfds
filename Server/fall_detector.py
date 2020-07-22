@@ -65,13 +65,13 @@ def detect_fall(frame_packet):
         else:
             score += current_score
         if score >= 6:
-            print("fall at %s" % obj.end_frame.frame_id)
-            break
+            return obj.end_frame.frame_id
+    return ""
 # def fall_score(mean, standard_deviation):
 if __name__ == "__main__":
     parent_dir = os.getcwd()
-    frame_packet = sorted(os.listdir('./test/img1/fall-30'))
-    os.chdir('test/img1/fall-30')
+    frame_packet = sorted(os.listdir('./test/fall-30'))
+    os.chdir('test/fall-30')
     frame_packet = [x for x in frame_packet if x.endswith('.png')]
     start_time = time.time()
     frame_packets = [cv2.imread(x) for x in frame_packet]
@@ -84,7 +84,9 @@ if __name__ == "__main__":
     motion_detector = MotionDetector(test_data)
     result = motion_detector.motion_data_from_frames()
     frames = motion_detector.get_frame_objects()
-    detect_fall(result)
+    fall_id = detect_fall(result)
+    if fall_id != '':
+        print(f"Fall at {fall_id}")
     # for obj in frames:
     end_time = time.time()
     print(end_time - start_time)
