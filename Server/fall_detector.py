@@ -64,7 +64,7 @@ def detect_fall(frame_packet):
             score = 0
         else:
             score += current_score
-        if score >= 6:
+        if score >= 15:
             return obj.end_frame.frame_id
     return ""
 # def fall_score(mean, standard_deviation):
@@ -72,11 +72,11 @@ if __name__ == "__main__":
     parent_dir = os.getcwd()
     frame_packet = sorted(os.listdir('./test/fall-30'))
     os.chdir('test/fall-30')
-    frame_packet = [x for x in frame_packet if x.endswith('.png')]
+    frame_packets = [x for x in frame_packet if x.endswith('.png')]
     start_time = time.time()
-    frame_packets = [cv2.imread(x) for x in frame_packet]
+    frame_packetss = [cv2.imread(x) for x in frame_packet]
     os.chdir(parent_dir)
-    dapi = DetectorAPI(frame_packets, frame_packet)
+    dapi = DetectorAPI(frame_packetss, frame_packets, cv2.imread('./test/mask.png'))
     dapi.background_subtract()
     # test_data = odapi.processPacket(frame_packet)
     test_data = dapi.get_rectangles()
