@@ -75,7 +75,7 @@ def fall_detect(packet):
 def zip_listener(server):
     while True:
         # There needs to be a sleep to work but it probably only needs to be only a fraction of a second.
-        sleep(1)  # You can tweak this if you want to work with a certain amount of packets of frames at once
+        sleep(.5)  # You can tweak this if you want to work with a certain amount of packets of frames at once
         # NOTE server only stores a max of 10 packets of frames at once so do not have too long.
         while len(server.new_packets) > 0:
             # There will be an unavoidable delay
