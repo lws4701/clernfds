@@ -2,7 +2,7 @@ import cv2 as cv
 
 
 class DetectorAPI:
-    def __init__(self, frame_array, timestamp_array, image_mask=None) -> None:
+    def __init__(self, frame_array, timestamp_array, image_mask="./archives/mask.jpg") -> None:
         '''
         Constructor Method: Takes an array of frames. If a background mask
         does not exist, one is created from the first index in the frames.

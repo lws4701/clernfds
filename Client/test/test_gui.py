@@ -9,7 +9,7 @@ from concurrent.futures.thread import ThreadPoolExecutor
 import threading
 import cv2
 import json
-import phone_numbers
+import phonenumbers
 from Client.tcp_client import TCPClient
 
 
@@ -117,14 +117,15 @@ class CLERNFDS(tk.Frame):
         self.mainloop()
 
     def update_preview(self):
-        if self.video_running:
+        pass
+        """if self.video_running:
             self.stop_event.set()
             self.video.join(timeout=1.5)
         video = cv2.VideoCapture(self.selected_index)
         self.stop_event = threading.Event()
         self.video = threading.Thread(
             target=self.video_loop, args=(video,), daemon=True)
-        self.video.start()
+        self.video.start()"""
 
     def generate_camera_indexes(self):
         """
@@ -196,10 +197,10 @@ class CLERNFDS(tk.Frame):
         :return:
         """
         contact = self.contact_entry.get()
-        contact = phone_numbers.parse(contact, "US")
+        contact = phonenumbers.parse(contact, "US")
 
         print(contact)
-        if phone_numbers.is_valid_number(contact):
+        if phonenumbers.is_valid_number(contact):
             self.contact_list['contacts'].append(contact.national_number)
             while True:
                 try:
@@ -310,7 +311,7 @@ class CLERNFDS(tk.Frame):
         # stop concurrent processes
         self.is_running = False
         # set the stop event
-        self.stop_event.set()
+        #self.stop_event.set()
         # GUI Hangs until the program it is running inside comes to an end
         self.root.quit()
 

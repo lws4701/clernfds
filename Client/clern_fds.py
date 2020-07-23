@@ -15,7 +15,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 def main():
     # Ensure proper directories exist
-    if not(os.path.exists('Frames')):
+    if not (os.path.exists('Frames')):
         os.mkdir('Frames')
     # Start The ClientGUI
     gui = CLERNFDS()
@@ -30,7 +30,7 @@ def main():
     print("Program Closed")
 
 
-def frame_processes(gui, frameClient):
+def frame_processes(gui, frame_client):
     while not gui.is_running:
         pass
     # Frame Deliverance
@@ -39,7 +39,6 @@ def frame_processes(gui, frameClient):
         index = int(gui.selected_index)
 
         cap = cv2.VideoCapture(index)
-        archive_size = 5
         # doesn't work on a webcam
         cap.set(cv2.CAP_PROP_FPS, 30)
 
@@ -48,18 +47,21 @@ def frame_processes(gui, frameClient):
         frames = []
         # open the cap (throwaway values)
         ret, frame = cap.read()
+
+        cv2.imwrite("mask.jpg", frame)
+        frame_client.send_file("mask.jpg")
         it = time.time()
         while index == int(gui.selected_index) and cap.isOpened() and gui.is_running:
             ret, frame = cap.read()
             frame_count += 1
-            if frame_count % archive_size == 0:
+            if frame_count % 3 == 0:
                 file_name = 'Frames/' + str(time.time()) + '.jpg'
                 cv2.imwrite(file_name, frame)
                 frames.append(file_name)
                 print(f'{file_name} saved')
-            if frame_count == archive_size * archive_size:
+            if frame_count == 30:
                 archive_count += 1
-                deliver(frames, archive_count, frameClient)
+                deliver(frames, archive_count, frame_client)
                 frames.clear()
                 if archive_count == 10:
                     archive_count = 0

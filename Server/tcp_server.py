@@ -3,7 +3,6 @@ import os
 import shutil
 import socket
 from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
-from imp import reload
 
 from Server.archive import Archive
 from threading import Thread
@@ -81,8 +80,7 @@ class TCPServer:
                     write_file.close()
                 print("%s Received" % file_header)
                 c.close()
-                if file_header != "contacts.txt":
-                    self.new_packets.append(write_header[:-4])
+                if file_header != "contacts.txt" and file_header != "mask.jpg":
                     Thread(target=self.unpack, args=(write_header,), daemon=True).start()
         except Exception as err_type:
             print(
@@ -107,6 +105,7 @@ class TCPServer:
         os.chdir(parent_dir)
         os.remove("./%s" % frame_archive.file_name)
         print(f"{archive_name} unzipped and archived")
+        self.new_packets.append(archive_name[:-4])
 
     def __str__(self):
         print("Host is: {} and the port is {}".format(self.host, self.port))

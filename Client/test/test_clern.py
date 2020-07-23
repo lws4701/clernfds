@@ -12,7 +12,7 @@ def main():
     if not (os.path.exists('Frames')):
         os.mkdir('Frames')
     # Start The ClientGUI
-    gui = CLERNFDS(["test1.mp4", "test2.mp4"])
+    gui = CLERNFDS(["fall.mp4"])
     # Init the Client being used to submit files
     client = TCPClient()
     # Get the frame deliverance loop started
@@ -25,12 +25,12 @@ def main():
 
 
 def frame_processes(gui, frameClient):
-    while not gui.isRunning:
+    while not gui.is_running:
         pass
     # Frame Deliverance
-    while gui.isRunning:
+    while gui.is_running:
         print("New Index")
-        index = gui.selectedIndex
+        index = gui.selected_index
 
         cap = cv2.VideoCapture(index)
 
@@ -40,16 +40,18 @@ def frame_processes(gui, frameClient):
 
         # open the cap (throwaway values)
         ret, frame = cap.read()
+        cv2.imwrite("mask.jpg", frame)
+        frameClient.send_file("mask.jpg")
         it = time.time()
-        while index == gui.selectedIndex and cap.isOpened() and gui.isRunning:
+        while index == gui.selected_index and cap.isOpened() and gui.is_running:
             ret, frame = cap.read()
             frameCount += 1
-            if frameCount % 5 == 1:
+            if frameCount % 3 == 0:
                 file_name = 'Frames/' + str(time.time()) + '.jpg'
                 cv2.imwrite(file_name, frame)
                 frames.append(file_name)
                 print(f'{file_name} saved')
-            if frameCount == 25:
+            if frameCount == 30:
                 archiveCount += 1
                 __deliver(frames, archiveCount, frameClient)
                 frames.clear()
@@ -58,7 +60,7 @@ def frame_processes(gui, frameClient):
                     archiveCount = 0
                 print(f"{time.time() - it} seconds to collect and deliver archive.")
                 it = time.time()
-            time.sleep(.03)  # time between frames in 30 fps for when putting in a mp4
+            time.sleep(.02)  # time between frames in 30 fps for when putting in a mp4
         cap.release()
 
 
@@ -82,7 +84,7 @@ def __deliver(frames, count, client):
             print(f"{frame} does not exist")
     # sending frames to server
     img_zip.close()
-    client.sendFile(img_zip.file_name)
+    client.send_file(img_zip.file_name)
     os.remove(file_name)
 
 
