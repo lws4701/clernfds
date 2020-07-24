@@ -1,0 +1,8 @@
+# Sensitive Twilio Information
+
+account_sid: 'AC5fc3bbbccf59dca7e2ea7fe531c97729'
+auth_token: '253e1b8798275817983dee9d1720fe58'
+
+service_sid: 'ZS11a28c3e928b3e447cad16682d17bf51'
+environment_sid: 'ZEb5540d5b3e615da9e28755fddc390dad'
+asset_sid: 'ZH76acf682588fb622cf276c5c86f04931'
