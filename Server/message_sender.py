@@ -1,5 +1,5 @@
 """
-motion_detector.py
+message_sender.py
 
 SRS cross-reference: The purpose of this file is to satisfy the non-functional requirement referenced in our
 SRS document in section 3.2.5.
