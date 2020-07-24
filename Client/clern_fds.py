@@ -5,6 +5,7 @@ Camera Ready
 """
 
 import os
+import shutil
 import time
 import cv2
 from Client.archive import Archive
@@ -22,13 +23,28 @@ def main():
     # Init the Client being used to submit files
     client = TCPClient()
     # Get the frame deliverance loop started
-    trans_thread = ThreadPoolExecutor().submit(frame_processes, gui, client)
+    t = ThreadPoolExecutor()
+    t.submit(frame_processes, gui, client)
     # Run the mainloop
 
     gui.loop()
-    trans_thread.result()
+    t.shutdown()
+    clear_frames()
     print("Program Closed")
 
+def clear_frames():
+    """ Clear all frames in the ./Frames folder"""
+
+    if os.path.exists("./Frames"):
+        for filename in os.listdir("./Frames"):
+            file_path = os.path.join("./Frames", filename)
+            try:
+                if os.path.isfile(file_path) or os.path.islink(file_path):
+                    os.unlink(file_path)
+                elif os.path.isdir(file_path):
+                    shutil.rmtree(file_path)
+            except Exception as e:
+                print('Failed to delete %s. Reason: %s' % (file_path, e))
 
 def frame_processes(gui, frame_client):
     while not gui.is_running:
@@ -70,6 +86,7 @@ def frame_processes(gui, frame_client):
                 print(f"{time.time() - it} seconds to collect and deliver archive.")
                 it = time.time()
         cap.release()
+        clear_frames()
 
 
 def deliver(frames, count, client):

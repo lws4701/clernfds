@@ -2,7 +2,10 @@ import importlib
 import os
 import shutil
 import socket
+import time
 from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
+
+import cv2
 
 from Server.archive import Archive
 from threading import Thread
@@ -65,6 +68,7 @@ class TCPServer:
         """
         try:
             if c is not None:
+                first = time.time()
                 file_header = c.recv(512).decode().strip()
                 response = file_header.upper() + " RECEIVED"
                 write_header = file_header if (file_header == "contacts.txt") else "./archives/" + file_header
@@ -80,13 +84,17 @@ class TCPServer:
                     write_file.close()
                 print("%s Received" % file_header)
                 c.close()
+                print(f"{time.time() - first} to receive")
                 if file_header != "contacts.txt" and file_header != "mask.jpg":
-                    Thread(target=self.unpack, args=(write_header,), daemon=True).start()
+                    self.unpack(write_header)
+                    print(f"{time.time() - first} to receive and unpack")
+
         except Exception as err_type:
             print(
                 "*** TCP SERVER \"%s\" error while trying to receive file ***" % err_type)
 
     def unpack(self, archive_name):
+        first = time.time()
         parent_dir = os.getcwd()
         frame_archive = Archive(archive_name)
         folder = frame_archive.name_woextension
@@ -105,7 +113,10 @@ class TCPServer:
         os.chdir(parent_dir)
         os.remove("./%s" % frame_archive.file_name)
         print(f"{archive_name} unzipped and archived")
-        self.new_packets.append(archive_name[:-4])
+        frame_packet = sorted(os.listdir(f"{archive_name[:-4]}/Frames"))
+        frame_packet = [f"{archive_name[:-4]}/Frames/{x}" for x in frame_packet]
+        self.new_packets.append(frame_packet)
+        print(f"{time.time() - first} to unpack")
 
     def __str__(self):
         print("Host is: {} and the port is {}".format(self.host, self.port))
