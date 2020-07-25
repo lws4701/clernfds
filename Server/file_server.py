@@ -31,13 +31,14 @@ def main():
     if not (os.path.exists("./archives")):
         os.mkdir("./archives")
     # Looks for new archives collected
-    listener = (ThreadPoolExecutor().submit(zip_listener, clern_server))
+    t = ThreadPoolExecutor()
+    t.submit(clern_server.listen_loop)
     # Receives and Unpacks the zips sent from client-side.
-    # processes.append(ProcessPoolExecutor().submit(clern_server.listenLoop))
-    clern_server.listen_loop()
+    zip_listener(clern_server)
+
 
     # Shut down loop
-    listener.result()
+    t.shutdown()
 
 
 def listdir_nohidden(path):
@@ -49,14 +50,11 @@ def listdir_nohidden(path):
     return fileList
 
 
-def fall_detect(packet):
+"""def fall_detect(packet):
     parent_dir = os.getcwd()
-    frame_packet = sorted(os.listdir(f"{packet}/Frames"))
-    os.chdir(f"{packet}/Frames")
-    print(frame_packet)
-    frames = [cv2.imread(x) for x in frame_packet]
+    frame_packets = [cv2.imread(x) for x in packet]
     os.chdir(parent_dir)
-    dapi = DetectorAPI(frames, frame_packet)
+    dapi = DetectorAPI(frame_packets, packet)
     dapi.background_subtract()
     test_data = dapi.get_rectangles()
     print(test_data)
@@ -70,17 +68,46 @@ def fall_detect(packet):
         cv2.imshow("Fall", img)
         cv2.waitKey(2000)
         cv2.destroyAllWindows()
+"""
 
 
 def zip_listener(server):
+    p = ProcessPoolExecutor()
+    sub = cv2.createBackgroundSubtractorKNN(dist2Threshold=550, detectShadows=False, history=50)
     while True:
-        # There needs to be a sleep to work but it probably only needs to be only a fraction of a second.
-        sleep(.5)  # You can tweak this if you want to work with a certain amount of packets of frames at once
         # NOTE server only stores a max of 10 packets of frames at once so do not have too long.
-        while len(server.new_packets) > 0:
+        sleep(.1)
+        if len(server.new_packets) > 0:
+            first =time()
+            frames = server.new_packets.pop(0)
+            rectangles = {}
+            for path in frames:
+                frame = cv2.imread(path)
+                frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+                sub_frame = sub.apply(frame)
+                sub_frame = cv2.medianBlur(sub_frame, 5)
+                contours, hierarchy = cv2.findContours(
+                    sub_frame, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+                contour = max(contours, key=cv2.contourArea)
+                x, y, w, h = cv2.boundingRect(contour)
+                box = [(x, y), ((x + w), y), (x, (y + h)), ((x + w), (y + h))]
+                if box != [(0, 0), (1280, 0), (0, 720), (1280, 720)]:
+                    #print(cv2.boundingRect(contour))
+                    cv2.rectangle(sub_frame,
+                                 (x, y), ((x+w), (y+h)), (255, 0, 0), 2)
+                    cv2.imshow('BackSub', sub_frame)
+                    cv2.waitKey(33)
+                    print(box)
+                # test_data = odapi.processPacket(frame_packet)
+                    rectangles[path] = box
+                #print(test_data)
+
+                # For deciding if accurate analysis or not.
             # There will be an unavoidable delay
-            print(server.new_packets)
-            ProcessPoolExecutor().submit(fall_detect, server.new_packets.pop(0))
+            #print(server.new_packets.pop(0))
+
+            #fall_detect(server.new_packets.pop(0))
+            print(f"{time() - first} to view packet")
 
 
 if __name__ == '__main__':
