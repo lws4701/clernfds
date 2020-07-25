@@ -15,9 +15,6 @@ and generating data about the motion of objects between those frames.
 
 
 import math
-import os
-import cv2
-from Server.backsub import DetectorAPI
 
 
 class MotionDetector:
@@ -28,8 +25,6 @@ class MotionDetector:
     (referenced in design class hierarchy diagram under section 3.4.3.1)
     """
     frames = list()
-
-
 
     def __init__(self, dict_of_frames):
         """
@@ -235,7 +230,7 @@ class MotionData:
         of that "origin"(a.k.a the start_point) and the straight line between the start_point and end_point.
         :param start_point: Tuple of form: (x, y)
         :param end_point: Tuple of form: (x, y)
-        :return: direciton: measured in radians
+        :return: direction: measured in radians
         """
         return round(math.atan2(-(end_point[1] - start_point[1]), end_point[0] - start_point[0]), 4)
 

@@ -6,7 +6,7 @@ import os
 import shutil
 import tkinter as tk
 from time import sleep
-from PIL import ImageTk, Image
+# from PIL import ImageTk, Image
 from concurrent.futures.thread import ThreadPoolExecutor
 import threading
 import cv2
