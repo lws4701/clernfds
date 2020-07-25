@@ -7,7 +7,7 @@ SRS document in section 3.2.5.
 SDD cross-reference: This functionality is referenced as fallAlertSms() in Interaction Diagram in section
 3.5.1.
 
-Description: This file houses the two main required functionalities of sending fall alert SMS's to the emergency contacts.
+Description: This file houses the two main required functionalities of sending fall alert SMS to the emergency contacts.
 """
 
 import requests
@@ -48,13 +48,11 @@ def upload_new_asset(file_name, file_path):
                              files=files,
                              auth=(account_sid, auth_token))
 
-
     # Creating build with previously created asset version
     build = client.serverless \
                   .services(service_sid) \
                   .builds \
                   .create(asset_versions=[response.json()['sid']])
-
 
     # Grabbing current status of build
     build_status = client.serverless \

@@ -1,21 +1,21 @@
-import importlib
+"""
+[insert file description]
+"""
+
 import os
 import shutil
 import socket
 import time
-from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
-
-import cv2
+from concurrent.futures import ThreadPoolExecutor
 
 from Server.archive import Archive
-from threading import Thread
 
 
 class TCPServer:
     """
     TCP Server Side of the connection between Server and host
     Running listenLoop Prepares the server to listen to all possible receive files.
-    Run listenLoop on seperate thread.
+    Run listenLoop on separate thread.
     """
     host = None  # server address eg.) 127.0.0.1 (local)
     port = None  # port number eg.) 1025–65535

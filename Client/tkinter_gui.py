@@ -1,13 +1,12 @@
 """
 tkinter_gui.py
 Author: Ryan Schildknecht
+[insert file description]
 """
+
 # TODO Test changing between two physical camera inputs
-import os
-import shutil
 import tkinter as tk
 from time import sleep
-from PIL import ImageTk, Image
 from concurrent.futures.thread import ThreadPoolExecutor
 import threading
 import cv2
@@ -58,7 +57,6 @@ class CLERNFDS(tk.Frame):
     def __init__(self):
         """
         Initializes the entire GUI pulling json data from contacts and writing to cameras to display current index.
-        :param videoStream: :param outputPath:
         """
         # I put this inside of the class because there is no real use of inheritance in this application of tkinter
         parent = tk.Tk()
@@ -73,7 +71,8 @@ class CLERNFDS(tk.Frame):
         # Create Title
         title = tk.Label(self.root, text="CLERN FDS", font=("Helvetica", 20))
         title.grid(row=0, column=0, columnspan=3)
-        # Contact Input Box
+
+        """ Contact Input Box """
         # Create Label
         input_label = tk.Label(self.root, text="Enter a Valid Contact Phone #")
         input_label.grid(row=1, column=0, columnspan=2, padx=10)
@@ -82,34 +81,36 @@ class CLERNFDS(tk.Frame):
         self.contact_entry.insert(tk.INSERT, "3145567823")
         # Contact Add Button
         add_btn = tk.Button(self.root, text="Add",
-                            command=lambda: self.addContact())
+                            command=lambda: self.add_contact())
         add_btn.grid(row=2, column=1, sticky="w")
 
-        # Contact Delete Dropdown
+        """ Contact Delete Dropdown """
         # Create Label
         drop_down_label = tk.Label(self.root, text="Select a Contact to Remove")
         drop_down_label.grid(row=3, column=0, columnspan=2, padx=10)
         # Delete Contact Button
         del_btn = tk.Button(self.root, text="Delete",
-                            command=lambda: self.deleteContact())
+                            command=lambda: self.delete_contact())
         del_btn.grid(row=4, column=1, sticky="w")
-        # Pull Contact List && Also calls the updateDropDown function where the options are allocated
+        # Pull Contact List && Also calls the update_dropdown function where the options are allocated
+        self.contact_dropdown = 0
         self.update_contacts()
 
-        # Camera Index Dropdown
+        """ Camera Index Dropdown """
         # Select Camera Index Label
         drop_down_label = tk.Label(self.root, text="Select Camera Index")
         drop_down_label.grid(row=5, column=0, columnspan=2, padx=10)
         # Draws the index drop down && Allocate Camera Indexes and put it into cameras.txt
+        self.index_drop_down = 0
         self.update_index_drop_down()
         # Add an update button to refresh the drop down
-        # refresh_btn = tk.Button(self.root, text="Refresh",
-        #                   command=lambda: self.update_index_drop_down())
-        # refresh_btn.grid(row=6, column=1, sticky="w")
+        del_btn = tk.Button(self.root, text="Refresh",
+                            command=lambda: self.update_index_drop_down())
+        del_btn.grid(row=6, column=1, sticky="w")
 
         # set a callback to handle when the window is closed
         self.root.wm_title("CLERN Fall Detection System")
-        self.root.wm_protocol("WM_DELETE_WINDOW", self.onClose)
+        self.root.wm_protocol("WM_DELETE_WINDOW", self.on_close)
 
     def loop(self):
         self.is_running = True
@@ -119,7 +120,7 @@ class CLERNFDS(tk.Frame):
         """
         Gets all accessible camera indexes to a max of ten and puts them in a dict
         under self.cameras["indexes"]
-        :return:
+        :return: None
         """
         # checks the first 10 indexes.
         index = 0
@@ -137,7 +138,7 @@ class CLERNFDS(tk.Frame):
     def update_index_drop_down(self):
         """
         Updates the dropdown selection of indexes
-        :return:
+        :return: None
         """
         self.generate_camera_indexes()
         print(self.cameras["indexes"])
@@ -157,42 +158,42 @@ class CLERNFDS(tk.Frame):
     def update_selected_index(self, val):
         """
         Helper function to updateIndexDropDown
-        :param val:
-        :return:
+        :param val: Camera index
+        :return: None
         """
         self.selected_index = val
 
-    def update_contactDropDown(self):
+    def update_contact_dropdown(self):
         """
         Updates the tkinter contact removal dropdown
-        :return:
+        :return: None
         """
         first = tk.StringVar(self.root)
         if len(self.contact_list["contacts"]) == 0:
             first.set("---None---")
             self.selected_contact = first.get()
-            self.contactDropdown = tk.OptionMenu(self.root, first, None,
-                                                 command=lambda val: self.update_selected_contact(val))
+            self.contact_dropdown = tk.OptionMenu(self.root, first, None,
+                                                  command=lambda val: self.update_selected_contact(val))
         else:
             first.set(self.contact_list["contacts"][0])
             self.selected_contact = first.get()
-            self.contactDropdown = tk.OptionMenu(self.root, first, *self.contact_list['contacts'],
-                                                 command=lambda val: self.update_selected_contact(val))
-        self.contactDropdown.grid(row=4, column=0, padx=5, sticky="w")
+            self.contact_dropdown = tk.OptionMenu(self.root, first, *self.contact_list['contacts'],
+                                                  command=lambda val: self.update_selected_contact(val))
+        self.contact_dropdown.grid(row=4, column=0, padx=5, sticky="w")
 
     def update_selected_contact(self, val):
         """
-        Helper function to updateContactDropDown
-        :param val:
-        :return:
+        Helper function to update_contact_dropdown
+        :param val: Contact that has been selected
+        :return: None
         """
         self.selected_contact = int(val)
 
-    def addContact(self):
+    def add_contact(self):
         """
         Validates phone number then adds it to the contacts.txt
         then updates the contact dropdown
-        :return:
+        :return: None
         """
         contact = self.contact_entry.get()
         contact = phonenumbers.parse(contact, "US")
@@ -215,10 +216,10 @@ class CLERNFDS(tk.Frame):
             self.contact_entry.delete(0, tk.END)
             self.contact_entry.insert(0, "INVALID #")
 
-    def deleteContact(self):
+    def delete_contact(self):
         """
         Deletes contact selected on the contact dropdown
-        :return:
+        :return: None
         """
         print(self.selected_contact)
         print(self.contact_list['contacts'])
@@ -240,7 +241,7 @@ class CLERNFDS(tk.Frame):
     def update_contacts(self):
         """
         Pulls the contacts from the contacts.txt and loads them onto memory
-        :return:
+        :return: None
         """
         while True:
             try:
@@ -255,23 +256,25 @@ class CLERNFDS(tk.Frame):
         threading.Thread(target=self.update_server, args=(
             "contacts.txt",), daemon=True).start()
         # Update the dropdown
-        self.update_contactDropDown()
+        self.update_contact_dropdown()
 
     def update_server(self, file_name):
         """
         Sends the contacts.txt
-        :return:
+        :return: None
         """
         self.client.send_file(file_name)
 
-    def onClose(self):
+    def on_close(self):
         """
         Essentially the Destructor Call
-        :return:
+        :return: None
         """
         print("CLERN FDS closing...")
         # stop concurrent processes
         self.is_running = False
+        # set the stop event
+        self.stop_event.set()
         # GUI Hangs until the program it is running inside comes to an end
         self.root.quit()
 
@@ -279,15 +282,14 @@ class CLERNFDS(tk.Frame):
 def run_check(gui):
     """
     Concurrent runtime loop that runs alongside the CLERN GUI
-    :param gui:
-    :param client:
+    :param gui: The CLERN FDS GUI
     :return:
     """
     # past_contacts = None
     while True:
         sleep(1)  # Checks for changes every 5 seconds
         print("iteration")
-        while gui.is_running == True:
+        while gui.is_running:
             sleep(1)
             print(gui.selected_contact)
         break
@@ -299,10 +301,3 @@ if __name__ == "__main__":
     # TKINTER cannot be ran under process so it has to be either the last thing called or ran as a thread.
     t = ThreadPoolExecutor().submit(run_check, main)
     main.loop()
-
-    # main.mainloop()
-    # client.sendFile("contacts.txt")
-    #
-    # t = ThreadPoolExecutor().submit(client.sendFile, "contacts.txt")
-
-    # print(p, p.is_alive())
