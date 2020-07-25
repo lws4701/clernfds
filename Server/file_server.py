@@ -24,7 +24,6 @@ def main():
     # Looks for new archives collected
     listener = (ThreadPoolExecutor().submit(zip_listener, clern_server))
     # Receives and Unpacks the zips sent from client-side.
-    # processes.append(ProcessPoolExecutor().submit(clern_server.listenLoop))
     clern_server.listen_loop()
 
     # Shut down loop
