@@ -76,14 +76,17 @@ def listdir_nohidden(path):
 
 def zip_listener(server):
     p = ProcessPoolExecutor()
-    sub = cv2.createBackgroundSubtractorKNN(dist2Threshold=550, detectShadows=False, history=50)
     while True:
         # NOTE server only stores a max of 10 packets of frames at once so do not have too long.
         sleep(.1)
+        if server.new_backsub:
+            sub = cv2.createBackgroundSubtractorKNN(dist2Threshold=550, detectShadows=False, history=50)
+            server.new_backsub = False
+
         if len(server.new_packets) > 0:
             first =time()
             frames = server.new_packets.pop(0)
-            rectangles = {}
+            rectangles = dict()
             for path in frames:
                 frame = cv2.imread(path)
                 frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
