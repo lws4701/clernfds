@@ -4,7 +4,6 @@ import os
 import cv2
 from Server.motion_detector import MotionDetector
 from Server.backsub import DetectorAPI
-from scipy import signal
 import numpy as np
 
 # def get_fall_score(motion_data) -> int:
