@@ -50,7 +50,7 @@ def listdir_nohidden(path):
     return fileList
 
 
-def fall_detect(packet):
+"""def fall_detect(packet):
     parent_dir = os.getcwd()
     frame_packets = [cv2.imread(x) for x in packet]
     os.chdir(parent_dir)
@@ -71,12 +71,12 @@ def fall_detect(packet):
         cv2.imshow("Fall", img)
         cv2.waitKey(2000)
         cv2.destroyAllWindows()
-
+"""
 
 
 def zip_listener(server):
     p = ProcessPoolExecutor()
-    sub = cv2.createBackgroundSubtractorKNN(dist2Threshold=0, detectShadows=False, history=250)
+    sub = cv2.createBackgroundSubtractorKNN(dist2Threshold=550, detectShadows=False, history=50)
     while True:
         # NOTE server only stores a max of 10 packets of frames at once so do not have too long.
         sleep(.1)
