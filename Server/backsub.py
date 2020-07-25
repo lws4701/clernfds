@@ -15,19 +15,17 @@ class DetectorAPI:
             self.mask = image_mask
         self.frame_array = frame_array
         self.timestamp_array = timestamp_array
-        self.back_sub = cv.createBackgroundSubtractorKNN(dist2Threshold=1250)
+        self.back_sub = cv.createBackgroundSubtractorKNN(history=10, detectShadows=False)
+        self.back_sub.setShadowThreshold(8)
+        self.back_sub.setkNNSamples(5)
 
     def background_subtract(self) -> None:
         '''
         Creates a overwrites the frames in the frame_array with a
         background-subtracted form of the image.
         '''
-        for current_frame in range(len(self.frame_array)):
-            self.frame_array[current_frame] = self.back_sub.apply(
-                self.frame_array[current_frame])
-            # For viewing the background subtracted photo
-            # cv.imshow('Backsub', self.frame_array[current_frame])
-            # cv.waitKey(30)
+        self.frame_array = [self.back_sub.apply(image) for image in self.frame_array]
+        self.frame_array = [cv.medianBlur(image, 5) for image in self.frame_array]
 
     def get_rectangles(self) -> dict:
         '''
@@ -46,7 +44,7 @@ class DetectorAPI:
                 # cv.rectangle(self.frame_array[cur_image],
                 #              (x, y), ((x+w), (y+h)), (255, 0, 0), 2)
                 # cv.imshow('Backsub', self.frame_array[cur_image])
-                # cv.waitKey(1000)
+                # cv.waitKey(30)
                 img_name = "%s" % self.timestamp_array[cur_image]
                 rectangles[img_name] = box  # Returns (x, y, w, h) where
                 # (x,y) is the top left corner

@@ -56,13 +56,10 @@ def listdir_nohidden(path):
     os.chdir(parent_dir)
     dapi = DetectorAPI(frame_packets, packet)
     dapi.background_subtract()
-    # test_data = odapi.processPacket(frame_packet)
     test_data = dapi.get_rectangles()
     print(test_data)
-    # print(test_data)
     motion_detector = MotionDetector(test_data)
     result = motion_detector.motion_data_from_frames()
-    frames = motion_detector.get_frame_objects()
     fall_id = detect_fall(result)
     if fall_id != "":
         print(f"***Fall happened at {fall_id}***")
