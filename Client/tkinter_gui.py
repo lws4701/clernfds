@@ -71,27 +71,28 @@ class CLERNFDS(tk.Frame):
         # Create Title
         title = tk.Label(self.root, text="CLERN FDS", font=("Helvetica", 20))
         title.grid(row=0, column=0, columnspan=3)
-
+        title.grid(row=0, column=0, pady=10, columnspan=3)
+        
         """ Contact Input Box """
         # Create Label
         input_label = tk.Label(self.root, text="Enter a Valid Contact Phone #")
-        input_label.grid(row=1, column=0, columnspan=2, padx=10)
+        input_label.grid(row=1, column=0, columnspan=2, padx=15)
         self.contact_entry = tk.Entry(self.root, width=12)
-        self.contact_entry.grid(row=2, column=0, padx=5, sticky="w")
+        self.contact_entry.grid(row=2, column=0, padx=15, sticky="w")
         self.contact_entry.insert(tk.INSERT, "3145567823")
         # Contact Add Button
         add_btn = tk.Button(self.root, text="Add",
-                            command=lambda: self.add_contact())
-        add_btn.grid(row=2, column=1, sticky="w")
+                            command=lambda: self.addContact())
+        add_btn.grid(row=2, column=1, padx=15, sticky="w")
 
         """ Contact Delete Dropdown """
         # Create Label
         drop_down_label = tk.Label(self.root, text="Select a Contact to Remove")
-        drop_down_label.grid(row=3, column=0, columnspan=2, padx=10)
+        drop_down_label.grid(row=3, column=0, columnspan=2, padx=15)
         # Delete Contact Button
         del_btn = tk.Button(self.root, text="Delete",
                             command=lambda: self.delete_contact())
-        del_btn.grid(row=4, column=1, sticky="w")
+        del_btn.grid(row=4, column=1, padx=15, sticky="w")
         # Pull Contact List && Also calls the update_dropdown function where the options are allocated
         self.contact_dropdown = 0
         self.update_contacts()
@@ -99,7 +100,7 @@ class CLERNFDS(tk.Frame):
         """ Camera Index Dropdown """
         # Select Camera Index Label
         drop_down_label = tk.Label(self.root, text="Select Camera Index")
-        drop_down_label.grid(row=5, column=0, columnspan=2, padx=10)
+        drop_down_label.grid(row=5, column=0, columnspan=2, padx=15)
         # Draws the index drop down && Allocate Camera Indexes and put it into cameras.txt
         self.index_drop_down = 0
         self.update_index_drop_down()
@@ -153,7 +154,7 @@ class CLERNFDS(tk.Frame):
             self.selected_index = first.get()
             self.index_drop_down = tk.OptionMenu(self.root, first, *self.cameras['indexes'],
                                                  command=lambda val: self.update_selected_index(val))
-        self.index_drop_down.grid(row=6, column=0, padx=5, sticky="w")
+        self.index_drop_down.grid(row=6, column=0, padx=15, pady=(0,15), sticky="w")
 
     def update_selected_index(self, val):
         """
@@ -177,9 +178,9 @@ class CLERNFDS(tk.Frame):
         else:
             first.set(self.contact_list["contacts"][0])
             self.selected_contact = first.get()
-            self.contact_dropdown = tk.OptionMenu(self.root, first, *self.contact_list['contacts'],
-                                                  command=lambda val: self.update_selected_contact(val))
-        self.contact_dropdown.grid(row=4, column=0, padx=5, sticky="w")
+            self.contactDropdown = tk.OptionMenu(self.root, first, *self.contact_list['contacts'],
+                                                 command=lambda val: self.update_selected_contact(val))
+        self.contactDropdown.grid(row=4, column=0, padx=15, sticky="w")
 
     def update_selected_contact(self, val):
         """

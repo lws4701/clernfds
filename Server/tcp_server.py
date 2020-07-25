@@ -21,7 +21,7 @@ class TCPServer:
     port = None  # port number eg.) 1025–65535
     s = None
     new_packets = []
-
+    new_backsub = True
     def __init__(self, host: str = socket.gethostname(), port: int = 8080):
         """
         Connects this server object to the host IP and Port
@@ -85,7 +85,9 @@ class TCPServer:
                 print("%s Received" % file_header)
                 c.close()
                 print(f"{time.time() - first} to receive")
-                if file_header != "contacts.txt" and file_header != "mask.jpg":
+                if file_header == "mask.jpg":
+                    self.new_backsub = True
+                elif file_header != "contacts.txt" and file_header != "mask.jpg":
                     self.unpack(write_header)
                     print(f"{time.time() - first} to receive and unpack")
 
