@@ -1,6 +1,14 @@
 """
 motion_detector.py
 
+SRS cross-reference: The purpose of this file is to satisfy the functional requirement referenced in our
+SRS document in section 3.1.5.
+
+SDD cross-reference: This is code for the first responsibility of the CLERN Image Analyzer component
+described in section 3.4.1 (first bullet point), instantiates the design class hierarchy diagram under section
+3.4.3.1 and also is the implementation of the processing narrative and algorithmic detail under section 3.4.3.5
+(second bullet points under heading 1 and 2).
+
 Description: This file creates a structure for analysing a sequence of frames
 and generating data about the motion of objects between those frames.
 """
@@ -13,8 +21,15 @@ from Server.backsub import DetectorAPI
 
 
 class MotionDetector:
-
+    """
+    This class is the main interface for other parts of the system to interact with the objects
+    defined in this file. It is to be instantiated with a dictionary of frames in a pre defined
+    format and can return motion data about those frames as well as a list of frame objects.
+    (referenced in design class hierarchy diagram under section 3.4.3.1)
+    """
     frames = list()
+
+
 
     def __init__(self, dict_of_frames):
         """
@@ -45,7 +60,8 @@ class Frame:
     This class represents a frame/image that contains a foreground object that
     has been detected within the frame. It holds a frame_id to uniquely identifies
     the frame and then the detected_person which will hold an array of coordinates
-    to represented the bounding box of the detected object.
+    to represented the bounding box of the detected object. (referenced in design
+    class hierarchy diagram under section 3.4.3.1)
     """
 
     frame_id = None
@@ -69,7 +85,8 @@ class DetectedPerson:
     """
     This class represents a foreground object that has been detected within a frame. It holds
     member variables for the four corners of the bounding box around this detected object. Along
-    data points about the rectangle including area, height, width etc.
+    data points about the rectangle including area, height, width etc. (referenced in design class
+    hierarchy diagram under section 3.4.3.1)
     """
 
     top_left = (None, None)
@@ -120,6 +137,7 @@ class MotionData:
     This class represents the analysis of the motion between two frame objects.
     Holds data about the motion of the center point of the bounding box along with data
     on how the box has transformed between frames such as diag_angle_change, height_change etc.
+    (referenced in design class hierarchy diagram under section 3.4.3.1)
     """
     # frame to start from
     start_frame = None

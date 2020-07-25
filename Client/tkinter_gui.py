@@ -3,6 +3,8 @@ tkinter_gui.py
 Author: Ryan Schildknecht
 """
 # TODO Test changing between two physical camera inputs
+import os
+import shutil
 import tkinter as tk
 from time import sleep
 from PIL import ImageTk, Image
@@ -80,7 +82,7 @@ class CLERNFDS(tk.Frame):
         self.contact_entry.insert(tk.INSERT, "3145567823")
         # Contact Add Button
         add_btn = tk.Button(self.root, text="Add",
-                           command=lambda: self.addContact())
+                            command=lambda: self.addContact())
         add_btn.grid(row=2, column=1, sticky="w")
 
         # Contact Delete Dropdown
@@ -89,7 +91,7 @@ class CLERNFDS(tk.Frame):
         drop_down_label.grid(row=3, column=0, columnspan=2, padx=10)
         # Delete Contact Button
         del_btn = tk.Button(self.root, text="Delete",
-                           command=lambda: self.deleteContact())
+                            command=lambda: self.deleteContact())
         del_btn.grid(row=4, column=1, sticky="w")
         # Pull Contact List && Also calls the updateDropDown function where the options are allocated
         self.update_contacts()
@@ -101,12 +103,9 @@ class CLERNFDS(tk.Frame):
         # Draws the index drop down && Allocate Camera Indexes and put it into cameras.txt
         self.update_index_drop_down()
         # Add an update button to refresh the drop down
-        del_btn = tk.Button(self.root, text="Refresh",
-                           command=lambda: self.update_index_drop_down())
-        del_btn.grid(row=6, column=1, sticky="w")
-
-        # instantiate a thread that updates the video feed
-        self.update_preview()
+        # refresh_btn = tk.Button(self.root, text="Refresh",
+        #                   command=lambda: self.update_index_drop_down())
+        # refresh_btn.grid(row=6, column=1, sticky="w")
 
         # set a callback to handle when the window is closed
         self.root.wm_title("CLERN Fall Detection System")
@@ -115,17 +114,6 @@ class CLERNFDS(tk.Frame):
     def loop(self):
         self.is_running = True
         self.mainloop()
-
-    def update_preview(self):
-        if self.video_running:
-            self.stop_event.set()
-            self.video.join(timeout=1)
-        index = int(self.selected_index)
-        video = cv2.VideoCapture(index)
-        self.stop_event = threading.Event()
-        self.video = threading.Thread(
-            target=self.video_loop, args=(video,), daemon=True)
-        self.video.start()
 
     def generate_camera_indexes(self):
         """
@@ -158,12 +146,12 @@ class CLERNFDS(tk.Frame):
             first.set("0")
             self.selected_index = first.get()
             self.index_drop_down = tk.OptionMenu(self.root, first, 0,
-                                               command=lambda val: self.update_selected_index(val))
+                                                 command=lambda val: self.update_selected_index(val))
         else:
             first.set(self.cameras["indexes"][0])
             self.selected_index = first.get()
             self.index_drop_down = tk.OptionMenu(self.root, first, *self.cameras['indexes'],
-                                               command=lambda val: self.update_selected_index(val))
+                                                 command=lambda val: self.update_selected_index(val))
         self.index_drop_down.grid(row=6, column=0, padx=5, sticky="w")
 
     def update_selected_index(self, val):
@@ -173,7 +161,6 @@ class CLERNFDS(tk.Frame):
         :return:
         """
         self.selected_index = val
-        self.update_preview()  # changes video preview to current index.
 
     def update_contactDropDown(self):
         """
@@ -277,42 +264,6 @@ class CLERNFDS(tk.Frame):
         """
         self.client.send_file(file_name)
 
-    def video_loop(self, vs):
-        """
-        Pulls video from the video stream from given index selected
-        :return:
-        """
-        self.video_running = True
-        try:
-            while not self.stop_event.is_set():
-                # grab the frame from the video
-                ret, self.frame = vs.read()
-                if self.frame is None:
-                    print("No Video Feed.")
-                    break
-                image = cv2.resize(self.frame, (852, 480))
-                image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-                image = Image.fromarray(image)
-                image = ImageTk.PhotoImage(image)
-
-                # if the panel is not None, we need to initialize it
-                if self.panel is None:
-                    self.panel = tk.Label(image=image)
-                    self.panel.image = image
-                    self.panel.grid(row=1, rowspan=100,
-                                    column=2, padx=20, pady=5)
-                # otherwise, simply update the panel
-                else:
-                    self.panel.configure(image=image)
-                    self.panel.image = image
-                cv2.waitKey(20)
-            vs.release()
-            self.video_running = False
-        except Exception as e:
-            print(
-                '***CLERN FDS GUI*** - "[%s] Error while running video_loop"' % e)
-        self.video_running = False
-
     def onClose(self):
         """
         Essentially the Destructor Call
@@ -321,8 +272,6 @@ class CLERNFDS(tk.Frame):
         print("CLERN FDS closing...")
         # stop concurrent processes
         self.is_running = False
-        # set the stop event
-        self.stop_event.set()
         # GUI Hangs until the program it is running inside comes to an end
         self.root.quit()
 
