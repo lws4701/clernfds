@@ -26,6 +26,8 @@ service_sid = conf['service_sid']
 environment_sid = conf['environment_sid']
 asset_sid = conf['asset_sid']
 
+from_number = conf['from_number']
+
 
 def upload_new_asset(file_name, file_path):
     """
@@ -33,8 +35,9 @@ def upload_new_asset(file_name, file_path):
     so that the send_messages() function can access the file via a media_url.
     :param file_name: name of file to upload as an asset to Twilio's service
     :param file_path: file path of file to upload as an asset to Twilio's service
-    :return:
+    :return: file_name: a str that is the name of the file that was uploaded
     """
+
 
     # File object that wraps the file itself along with some metadata
     files = {
@@ -48,12 +51,11 @@ def upload_new_asset(file_name, file_path):
                              files=files,
                              auth=(account_sid, auth_token))
 
-
     # Creating build with previously created asset version
     build = client.serverless \
                   .services(service_sid) \
                   .builds \
-                  .create(asset_versions=[response.json()['sid']])
+                  .create(asset_versions=response.json()['sid'])
 
 
     # Grabbing current status of build
@@ -84,30 +86,55 @@ def upload_new_asset(file_name, file_path):
                        .deployments \
                        .create(build.sid) \
 
-    print('Asset uploaded at path: https://clernimageserver-6543-clerndev.twil.io/'+ file_name)
+    print('Asset uploaded at path: https://clernimageserver-6543-clerndev.twil.io/' + file_name)
     return file_name
 
 
-def send_messages(obj):
+def send_text_messages():
     """
-    This takes an obj housing a fall_id (a.k.a. the file name of the frame when a fall occurred)
-    and sends a message withe that image and some text saying a fall has been detected to all
-    twilio verified phone numbers in the contacts.txt file.
-    :param obj: the result object returned from the thread's submit() method
+    This function sends the fall detection text message to all emergency contacts
+    stored in contacts.txt. This sends immediately after a fall occurs and then user will
+    have to wait a few seconds to receive the image of the fall.
     """
 
     # Open contacts.txt and load them into an array
-    with open('contacts.txt') as json_file:
+    with open('../Client/contacts.txt') as json_file:
         contacts = json.load(json_file)['contacts']
 
-    # Iterate over contacts and send a message to each one
+    message_body = "C.L.E.R.N. Fall Detection System\n\n" \
+                   + "A fall has been detected!\n\n" \
+                   + "Please wait while we send you an image of the fall...\n"
+
+    # Iterate over contacts and send a the text message to each one
     for contact in contacts:
         message = client.messages.create(
-                                     body="A fall has been detected!",
-                                     from_='+12028662717',
-                                     media_url=['https://clernimageserver-6543-clerndev.twil.io/' + obj._result],
+                                     body=message_body,
+                                     from_='+1' + from_number,
                                      to='+1' + str(contact)
                                   )
-        print("Messages sent to: " + str(contacts))
+    print("Message(s) sent to: " + str(contacts))
+
+
+def send_image_messages(obj):
+    """
+    This takes an obj that contains a fall_id (a.k.a. the file name of the frame when a fall occurred)
+    and sends a message with that image and to all Twilio verified phone numbers in the contacts.txt file.
+    :param obj: the result object returned from the thread's submit() method (meant to contain
+    the file_name returned from upload_new_asset)
+    """
+
+    # Open contacts.txt and load them into an array
+    with open('../Client/contacts.txt') as json_file:
+        contacts = json.load(json_file)['contacts']
+
+    # Iterate over contacts and send a the image message to each one
+    for contact in contacts:
+        message = client.messages.create(
+                                     from_='+1' + from_number,
+                                     media_url='https://clernimageserver-6543-clerndev.twil.io/' + obj._result,
+                                     to='+1' + str(contact)
+                                  )
+
+    print("Image(s) sent to: " + str(contacts))
 
 
