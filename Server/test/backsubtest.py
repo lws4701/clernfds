@@ -2,7 +2,7 @@ import os
 
 import cv2 as cv
 
-from Server.oldcode.backsub import DetectorAPI
+from Server.backsub import DetectorAPI
 
 files = os.listdir('./img1')
 parent_dir = os.getcwd()
