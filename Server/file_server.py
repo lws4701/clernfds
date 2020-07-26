@@ -1,32 +1,35 @@
-'''
-File Name: start_fileserver.py
-Authors: CLERN Development Team
-Last Modified: 3 Jul 2020
-Description: This module serves as the start script for the
-             CLERN file server component of the CLERN Server
-'''
-from concurrent.futures.process import ProcessPoolExecutor
-from concurrent.futures.thread import ThreadPoolExecutor
+"""
+clern_server.py
+
+SRS cross-reference: The purpose of this file is to satisfy the non-functional requirement referenced in our
+SRS document in section 3.1.3 (Implementing client-server communication).
+In addition, background subtraction is performed here, so it is in partial fulfillment of section 3.1.4.
+The remaining work to fulfill 3.1.4 are implemented in helper_functions.py
+
+SDD cross-reference: This functionality implements the first portion of the algorithmic detail for the CLERN Image Analyzer
+as well as the makes use of the TCP_Server class which implements section 3.3 (CLERN File Server)
+
+Description: This file utilizes the tcp_server component (which implements the file server) and uses helper functions to
+implement the CLERN image analyzer.
+"""
+
+# Standard Library Imports
+import os
 from time import sleep, time
 import shutil
+from concurrent.futures.process import ProcessPoolExecutor
+from concurrent.futures.thread import ThreadPoolExecutor
+# Non Standard Library Imports
 import cv2
-
+# Custom Imports
 from Server.fall_detector import detect_fall
 from Server.helper_functions import *
 from Server.motion_detector import MotionDetector
 from Server.tcp_server import TCPServer
 
-import os
-import sys
-
-"""
-Note to future self
-Use thread to view the server current server variables
-Then use that thread to call on actual processes for calculation. 
-"""
 
 
-def main():
+def main() -> None:
     clern_server = TCPServer()
     if not (os.path.exists("./archives")):
         os.mkdir("./archives")
@@ -41,37 +44,24 @@ def main():
     t.shutdown()
 
 
-def listdir_nohidden(path):
-    '''For listing only visible files'''
+def listdir_nohidden(path) -> list:
+    """
+    Lists the files in a directoy, not including hidden (dotfiles) as well as zip files
+    :param path: The path of to be listed
+    :return: A sorted list of files in a directory
+    """
     fileList = []
-    for f in os.listdir(path):
+    for f in sorted(os.listdir(path)):
         if not f.startswith(('.')) and not (f.endswith('.zip')):
             fileList.append(f)
     return fileList
 
-
-"""def fall_detect(packet):
-    parent_dir = os.getcwd()
-    frame_packets = [cv2.imread(x) for x in packet]
-    os.chdir(parent_dir)
-    dapi = DetectorAPI(frame_packets, packet)
-    dapi.background_subtract()
-    test_data = dapi.get_rectangles()
-    print(test_data)
-    motion_detector = MotionDetector(test_data)
-    result = motion_detector.motion_data_from_frames()
-    fall_id = detect_fall(result)
-    if fall_id != "":
-        print(f"***Fall happened at {fall_id}***")
-        # For deciding if accurate analysis or not.
-        img = cv2.imread(f"{packet}/Frames/{fall_id}", 0)
-        cv2.imshow("Fall", img)
-        cv2.waitKey(2000)
-        cv2.destroyAllWindows()
-"""
-
-
-def zip_listener(server):
+def zip_listener(server) -> None:
+    """
+    The core of clern_server. Listens for zips and calls the helper functions to act as the image analyzer
+    :param server: The CLERN_Server Object
+    :return: None
+    """
     p = ProcessPoolExecutor()
     parent_dir = os.getcwd()
     while True:
@@ -85,6 +75,7 @@ def zip_listener(server):
             #mask = "mask.jpg"
             for i in range(1, 11):
                 try:
+                    first = time()
                     os.chdir("./archives/%s/Frames" % i)
                     frame_paths = listdir_nohidden(".")
                     frames = load_frames(frame_paths)

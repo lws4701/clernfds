@@ -1,18 +1,21 @@
+"""
+helper_functions.py
+
+SRS cross-reference: The purpose of this file is to satisfy the functional requirement referenced in our
+SRS document in section 3.1.4, Locating people within a frame
+In addition, background subtraction is performed here, so it is in partial fulfillment of section 3.1.4.
+The remaining work to fulfill 3.1.4 are implemented in helper_functions.py
+
+SDD cross-reference: This functionality implements the bulk of person detection in the algorithmic detail
+for the CLERN Image Analyzer (Section 3.4)
+
+Description: This file provides helper functions that implement algorithms which comprise the some core functionality of
+the CLERN Image Analyzer
+"""
+
+
+# Non Standard Library Imports
 import cv2 as cv
-
-
-def background_subtract(frame_array, b_sub, mask = None) -> list:
-    """
-    Takes a frame array and returns an array where the frames have been background subtracted.
-    :param frame_array: Array of frames
-    :param mask: A background mask to compare against
-    :param b_sub: Background subtractor object
-    :return: A list of frames wherein the background has been subtracted
-    """
-    frames = [b_sub.apply(frame, mask) for frame in frame_array]
-    print("Call")
-    frames = [cv.medianBlur(frame, 3) for frame in frame_array]
-    return frames
 
 
 def get_rectangles(frame_array, name_array) -> dict:

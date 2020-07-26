@@ -1,7 +1,16 @@
 """
-[insert file description]
+fall_detector.py
+
+SRS cross-reference: The purpose of this file is to satisfy the functional requirement referenced in our
+SRS document in section 3.1.6.
+
+SDD cross-reference: This is code for the second responsibility of the CLERN Image Analyzer component (Fall Detection
+described in section 3.4.1 (second bullet point) and implements the algorithmic detail for detecting a fall in this section.
+
+Description: This file implements CLERN's fall detection algorithm
 """
 
+# Non Standard Library Imports
 import numpy as np
 
 
@@ -36,24 +45,29 @@ def detect_fall(frame_packet) -> str:
     :param frame_packet: Packet of frames for analysis
     :return: String corresponding to the fall frame for the detected fall
     """
+    # Get motion data from frame_packet
     velocities = [frame.velocity for frame in frame_packet]
     angle_chang = [frame.diag_angle_change for frame in frame_packet]
     angle = [frame.end_frame.detected_person.angle_of_diag for frame in frame_packet]
+    # Perform statistical calculations on motion data.
     vel_std = np.std(velocities)
     vel_mean = np.mean(velocities)
     angle_chang_std = np.std(angle_chang)
     angle_chang_mean = np.std(angle_chang)
     angle_std = np.std(angle)
     angle_mean = np.mean(angle)
-    score = 0
+    # Loop through packet, perform calculations on individual frames
+    score = 0 # Set counter
     for obj in frame_packet:
         velocity = obj.velocity
         angle = obj.end_frame.detected_person.angle_of_diag
         angle_chang = obj.diag_angle_change
         current_score = get_score(velocity, vel_mean, vel_std, angle, angle_mean, angle_std,
                                   angle_chang, angle_chang_mean, angle_chang_std)
-        if current_score == 1:
+        # If there's nothing out of the ordinary, reset the frame score
+        if current_score == 0:
             score = 0
+        # Otherwise add current score to the counter to check against the threshold
         else:
             score += current_score
         if score >= 12:
