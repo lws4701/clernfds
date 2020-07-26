@@ -21,7 +21,8 @@ from concurrent.futures.process import ProcessPoolExecutor
 from concurrent.futures.thread import ThreadPoolExecutor
 # Non Standard Library Imports
 import cv2
-# Custom Imports
+
+from Server import motion_detector
 from Server.fall_detector import detect_fall
 from Server.helper_functions import *
 from Server.motion_detector import MotionDetector
@@ -82,8 +83,7 @@ def zip_listener(server) -> None:
                     frames = [sub.apply(frame) for frame in frames]
                     frames = [cv.medianBlur(frame, 3) for frame in frames]
                     rectangles = get_rectangles(frames, frame_paths)
-                    motion_detector = MotionDetector(rectangles)
-                    motion_data = motion_detector.motion_data_from_frames()
+                    motion_data = motion_detector.motion_data_from_frames(rectangles)
                     fall_id = detect_fall(motion_data)
                     if fall_id != "":
                         print("Fall detected at Packet %s, Frame %s" % (os.getcwd(), fall_id))
