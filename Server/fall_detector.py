@@ -16,7 +16,7 @@ import numpy as np
 
 def get_score(velocity, velocity_mean, velocity_std,
               angle, angle_mean, angle_std,
-              angle_chang, angle_chang_mean, angle_chang_std) -> int:
+              angle_chang, angle_chang_mean, angle_chang_std, chang_in_y) -> int:
     """
     Calculates a fall likelihood score based on the statistical values of the velocity, angle, and change in the angle.
     :param velocity: Individual velocity value of the frame
@@ -28,13 +28,15 @@ def get_score(velocity, velocity_mean, velocity_std,
     :param angle_chang: Change in the angle for the calculated frame object.
     :param angle_chang_mean: Mean of the change in the angle for all sampled frames
     :param angle_chang_std: Standard deviation of the change in angle for all sampled frames
+    :param chang_in_y: The chang in y from start frame to end frame
     :return: A fall likelihood score
     """
     score = 0
     vel_diff = np.abs(velocity - velocity_mean).item(0)
     ang_diff = np.abs(angle - angle_mean).item(0)
     ang_delta_diff = np.abs(angle_chang - angle_chang_mean).item(0)
-    score += vel_diff // velocity_std
+    if 50 < chang_in_y < 100:
+        score += vel_diff // velocity_std
     score += ang_diff // angle_std
     score += ang_delta_diff // angle_chang_std
     return score
@@ -62,8 +64,9 @@ def detect_fall(frame_packet) -> str:
         velocity = obj.velocity
         angle = obj.end_frame.detected_person.angle_of_diag
         angle_chang = obj.diag_angle_change
+        chang_in_y = obj.motion_vector[1]
         current_score = get_score(velocity, vel_mean, vel_std, angle, angle_mean, angle_std,
-                                  angle_chang, angle_chang_mean, angle_chang_std)
+                                  angle_chang, angle_chang_mean, angle_chang_std, chang_in_y)
         # If there's nothing out of the ordinary, reset the frame score
         if current_score == 0:
             score = 0
