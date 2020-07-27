@@ -13,12 +13,12 @@ def main():
     if not (os.path.exists('Frames')):
         os.mkdir('Frames')
     # Start The ClientGUI
-    gui = CLERNFDS(['./fall-vids/fall-11.mp4'])
+    gui = CLERNFDS(['fall-02.mp4'])
     # Init the Client being used to submit files
     client = TCPClient()
     # Get the frame deliverance loop started
     t = ThreadPoolExecutor()
-    t.submit(frame_processes, gui, client, )
+    t.submit(frame_processes, gui, client)
     # Run the mainloop
 
     gui.loop()
@@ -58,9 +58,8 @@ def frame_processes(gui, frame_client):
         frames = []
 
         # open the cap (throwaway values)
-        ret, frame = cap.read()
-        cv2.imwrite('mask.jpg', frame)
-        frame_client.send_file("mask.jpg")
+        cap.read()
+        frame_client.send_file('mask.jpg')
         it = time.time()
         while index == gui.selected_index and cap.isOpened() and gui.is_running:
             ret, frame = cap.read()

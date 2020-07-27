@@ -22,10 +22,9 @@ from concurrent.futures.thread import ThreadPoolExecutor
 # Non Standard Library Imports
 import cv2
 
-from Server import motion_detector
+from Server import motion_detector, message_sender
 from Server.fall_detector import detect_fall
 from Server.helper_functions import *
-from Server.motion_detector import MotionDetector
 from Server.tcp_server import TCPServer
 
 
@@ -73,27 +72,30 @@ def zip_listener(server) -> None:
             sub.setShadowThreshold(8)
             sub.setkNNSamples(2)
             server.new_backsub = False
-            #mask = "mask.jpg"
-            for i in range(1, 11):
-                try:
-                    first = time()
-                    os.chdir("./archives/%s/Frames" % i)
-                    frame_paths = listdir_nohidden(".")
-                    frames = load_frames(frame_paths)
-                    frames = [sub.apply(frame) for frame in frames]
-                    frames = [cv.medianBlur(frame, 3) for frame in frames]
-                    rectangles = get_rectangles(frames, frame_paths)
-                    motion_data = motion_detector.motion_data_from_frames(rectangles)
-                    fall_id = detect_fall(motion_data)
-                    if fall_id != "":
-                        print("Fall detected at Packet %s, Frame %s" % (os.getcwd(), fall_id))
-                    print(f"{time() - first} to view packet")
-                    os.chdir(parent_dir)
-                    shutil.rmtree("./archives/%s")
-                    frame_paths.clear()
-                except:
-                    os.chdir(parent_dir)
-                    pass
+
+        if len(server.new_packets) > 0:
+            first = time()
+            frame_paths = server.new_packets.pop(0)
+            try:
+                frames = load_frames(frame_paths)
+                frames = [sub.apply(frame) for frame in frames]
+                frames = [cv.medianBlur(frame, 3) for frame in frames]
+                rectangles = get_rectangles(frames, frame_paths)
+                motion_data = motion_detector.motion_data_from_frames(rectangles)
+                fall_id = detect_fall(motion_data)
+                print(fall_id)
+                if fall_id != "":
+                    message_sender.send_text_messages()
+                    file_name = fall_id.partition("Frames/")[2]
+                    ProcessPoolExecutor().submit(message_sender.send_image_messages, file_name, fall_id, file_name.split('.')[2])
+                    print("Fall detected at Packet %s, Frame %s" % (os.getcwd(), fall_id))
+                print(f"{time() - first} to view packet")
+                os.chdir(parent_dir)
+                shutil.rmtree("./archives/%s")
+                frame_paths.clear()
+            except:
+                os.chdir(parent_dir)
+                pass
 
 
 if __name__ == '__main__':
