@@ -55,12 +55,12 @@ class TCPServer:
                 c, c_address = self.s.accept()
                 print("Connection from: {}".format(str(c_address)))
                 # Receives file while listening to next file.
-                ThreadPoolExecutor().submit(self.receive_file, c)
+                ThreadPoolExecutor().submit(self.__receive_file, c)
         except Exception as err_type:
             print(
                 "*** TCP Server \"{}\" error while connecting client to server***".format(err_type))
 
-    def receive_file(self, c):
+    def __receive_file(self, c):
         """
         Receive file from client
         :param c: //Client
@@ -87,14 +87,14 @@ class TCPServer:
                 if file_header == "mask.jpg":
                     self.new_backsub = True
                 elif file_header != "contacts.txt" and file_header != "mask.jpg":
-                    self.unpack(write_header)
+                    self.__unpack(write_header)
                     print(f"{time.time() - first} to receive and unpack")
 
         except Exception as err_type:
             print(
                 "*** TCP SERVER \"%s\" error while trying to receive file ***" % err_type)
 
-    def unpack(self, archive_name):
+    def __unpack(self, archive_name):
         first = time.time()
         parent_dir = os.getcwd()
         frame_archive = Archive(archive_name)

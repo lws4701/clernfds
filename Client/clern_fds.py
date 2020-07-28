@@ -65,7 +65,6 @@ def frame_processes(gui, frame_client):
         frames = []
         # open the cap (throwaway values)
         ret, frame = cap.read()
-
         cv2.imwrite("mask.jpg", frame)
         frame_client.send_file("mask.jpg")
         it = time.time()

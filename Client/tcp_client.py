@@ -55,9 +55,9 @@ class TCPClient:
                         sent = 0
                         response = None
                         while sent < file_size:
-                            bytes_read = sending_file.read(1024)
+                            bytes_read = sending_file.read(4096)
                             self.s.sendall(bytes_read)
-                            sent += 1024
+                            sent += 4096
                             # TCP Response
                             response = self.s.recv(1024).decode('utf-8')
                     sending_file.close()
