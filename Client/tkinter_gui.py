@@ -1,7 +1,11 @@
 """
 tkinter_gui.py
 Author: Ryan Schildknecht
-[insert file description]
+
+SRS cross-reference
+Functional Requirement 3.1.2 - The FDS client shall offer a GUI frontend for users.
+Functional Requirement
+
 """
 
 import tkinter as tk

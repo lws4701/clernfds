@@ -1,7 +1,7 @@
 """
 clern_server.py
 
-SRS cross-reference: The purpose of this file is to satisfy the non-functional requirement referenced in our
+SRS cross-reference: The purpose of this file is to satisfy the functional requirement referenced in our
 SRS document in section 3.1.3 (Implementing client-server communication).
 In addition, background subtraction is performed here, so it is in partial fulfillment of section 3.1.4.
 The remaining work to fulfill 3.1.4 are implemented in helper_functions.py

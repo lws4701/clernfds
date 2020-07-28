@@ -13,7 +13,7 @@ def main():
     if not (os.path.exists('Frames')):
         os.mkdir('Frames')
     # Start The ClientGUI
-    gui = CLERNFDS(['fall-01.mp4'])
+    gui = CLERNFDS(['fall-01.mp4', 'fall-04.mp4', 'fall-07.mp4', 'fall-13.mp4', 'fall-29.mp4'])
     # Init the Client being used to submit files
     client = TCPClient()
     # Get the frame deliverance loop started
@@ -48,6 +48,7 @@ def frame_processes(gui, frame_client):
         pass
     # Frame Deliverance
     while gui.is_running:
+        time.sleep(.01)
         print("New Index")
         index = gui.selected_index
 
