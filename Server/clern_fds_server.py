@@ -73,7 +73,7 @@ def detection_loop(server) -> None:
                     file_name = fall_id.partition("Frames/")[2]
                     ProcessPoolExecutor().submit(message_sender.send_image_messages, file_name, fall_id,
                                                  file_name.split('.')[2])
-                    print("Fall detected at Packet %s, Frame %s" % (os.getcwd(), fall_id))
+                    print("Fall detected at %s" % fall_id)
                 print(f"{time() - first} to view packet")
             except Exception as e:
                 print(f"[{e}] error in fall detection loop")
