@@ -13,12 +13,12 @@ def main():
     if not (os.path.exists('Frames')):
         os.mkdir('Frames')
     # Start The ClientGUI
-    gui = CLERNFDS(["fall.mp4"])
+    gui = CLERNFDS(['fall-02.mp4'])
     # Init the Client being used to submit files
     client = TCPClient()
     # Get the frame deliverance loop started
     t = ThreadPoolExecutor()
-    t.submit(frame_processes, gui, client, )
+    t.submit(frame_processes, gui, client)
     # Run the mainloop
 
     gui.loop()
@@ -43,7 +43,7 @@ def clear_frames():
                 print('Failed to delete %s. Reason: %s' % (file_path, e))
 
 
-def frame_processes(gui, frameClient):
+def frame_processes(gui, frame_client):
     while not gui.is_running:
         pass
     # Frame Deliverance
@@ -58,9 +58,8 @@ def frame_processes(gui, frameClient):
         frames = []
 
         # open the cap (throwaway values)
-        ret, frame = cap.read()
-        cv2.imwrite("mask.jpg", frame)
-        frameClient.send_file("mask.jpg")
+        cap.read()
+        frame_client.send_file('mask.jpg')
         it = time.time()
         while index == gui.selected_index and cap.isOpened() and gui.is_running:
             ret, frame = cap.read()
@@ -72,7 +71,7 @@ def frame_processes(gui, frameClient):
                 print(f'{file_name} saved')
             if frameCount == 30:
                 archiveCount += 1
-                __deliver(frames, archiveCount, frameClient)
+                __deliver(frames, archiveCount, frame_client)
                 frames.clear()
                 frameCount = 0
                 if archiveCount == 10:

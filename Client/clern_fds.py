@@ -32,6 +32,7 @@ def main():
     clear_frames()
     print("Program Closed")
 
+
 def clear_frames():
     """ Clear all frames in the ./Frames folder"""
 
@@ -45,6 +46,7 @@ def clear_frames():
                     shutil.rmtree(file_path)
             except Exception as e:
                 print('Failed to delete %s. Reason: %s' % (file_path, e))
+
 
 def frame_processes(gui, frame_client):
     while not gui.is_running:
@@ -88,15 +90,16 @@ def frame_processes(gui, frame_client):
         clear_frames()
 
 
-def deliver(frames, count, client):
+def deliver(frames, archive_num, client):
     """
     Creates an Archive of Collected Frames.
     Sends that Archive
-    :param frames:
-    :param client:
+    :param frames: Collection of frames being passed
+    :param archive_num: The number of the archive being passed (1-10)
+    :param client: The CLERN FDS client
     :return:
     """
-    img_zip = Archive(str(count) + ".zip")
+    img_zip = Archive(str(archive_num) + ".zip")
     file_name = img_zip.file_name
     for frame in frames:
         img_zip.add(frame)

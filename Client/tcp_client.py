@@ -1,3 +1,7 @@
+"""
+[insert file description]
+"""
+
 import socket
 import os
 
@@ -18,13 +22,13 @@ class TCPClient:
             self.port = 8080
             print(
                 "*** TCP Client - {} is out of bounds and the default port 8080 has been used ***".format(port))
-        # no efficient way to check host it just wont work if wrong.
+        # no efficient way to check host, it just wont work if it is wrong.
         self.host = host
 
     def __connect(self):
         """
         Helper Function to the sendFile function that connects to the server
-        :return:
+        :return: None
         """
         try:
             self.s = socket.socket()
@@ -46,7 +50,7 @@ class TCPClient:
                     # Send header with file_name and size
                     header = os.path.basename(file_name).ljust(512)
                     self.s.sendall(header.encode('utf-8'))
-                    # Send file as bytestring
+                    # Send file as byte string
                     with open(file_name, "rb") as sending_file:
                         sent = 0
                         response = None
@@ -54,12 +58,11 @@ class TCPClient:
                             bytes_read = sending_file.read(1024)
                             self.s.sendall(bytes_read)
                             sent += 1024
-                            #print("+", end="")
                             # TCP Response
                             response = self.s.recv(1024).decode('utf-8')
                     sending_file.close()
                     print("Server Response = %s" % response)
-                    # os.remove(file_name)
+
         except Exception as err_type:
             print("***TCP Client \"%s\" error while trying to send ***" % err_type)
         self.__close()
@@ -67,8 +70,8 @@ class TCPClient:
     def __close(self):
 
         """
-        Helper Function to Sendfile function that closes the connection
-        :return:
+        Helper Function to send_file function that closes the connection
+        :return: None
         """
         try:
             if self.s is not None:
