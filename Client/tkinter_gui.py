@@ -4,7 +4,6 @@ Author: Ryan Schildknecht
 [insert file description]
 """
 
-# TODO Test changing between two physical camera inputs
 import tkinter as tk
 from time import sleep
 from concurrent.futures.thread import ThreadPoolExecutor
@@ -19,17 +18,11 @@ class CLERNFDS(tk.Frame):
     """
     This is what the client will be interacting with primarily
 
-    Needs to be the last thing running since the threading on tkinter is horrible and my solution is hacky
-
     GUI will hang until everything is done processing
 
     Threading a thread alongside this gui with the gui object as a parameter will allow that thread dynamic access
     to variables
 
-    Multiprocessing alongside tkinter is not possible, only multithreading is.
-
-    Video pauses when a drop down is selected
-    (my guess is that it pauses the mainloop as well, so it is unavoidable without a custom mainloop)
     """
     # GUI has separate client object for concurrent delivery.
     client = None

@@ -74,11 +74,10 @@ class TCPServer:
                 write_header = file_header if (file_header == "contacts.txt") else "./archives/" + file_header
                 with open(write_header, "wb") as write_file:
                     while True:
-                        bytes_read = c.recv(1024)
+                        bytes_read = c.recv(4096)
                         if not bytes_read:
                             break
                         write_file.write(bytes_read)
-                        # print("+", end="")
                         # TCP Response
                         c.send(response.encode('utf-8'))
                     write_file.close()
