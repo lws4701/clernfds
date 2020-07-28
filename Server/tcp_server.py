@@ -78,7 +78,6 @@ class TCPServer:
                         if not bytes_read:
                             break
                         write_file.write(bytes_read)
-                        # print("+", end="")
                         # TCP Response
                         c.send(response.encode('utf-8'))
                     write_file.close()
