@@ -79,7 +79,7 @@ def frame_processes(gui, frame_client):
                     archiveCount = 0
                 print(f"{time.time() - it} seconds to collect and deliver archive.")
                 it = time.time()
-            time.sleep(.02)  # time between frames in 30 fps for when putting in a mp4
+            cv2.waitKey(33)  # time between frames in 30 fps for when putting in a mp4
         cap.release()
         clear_frames()
 
