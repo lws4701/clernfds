@@ -55,7 +55,7 @@ def detect_fall(frame_packet) -> str:
     vel_std = np.std(velocities)
     vel_mean = np.mean(velocities)
     angle_chang_std = np.std(angle_chang)
-    angle_chang_mean = np.std(angle_chang)
+    angle_chang_mean = np.mean(angle_chang)
     angle_std = np.std(angle)
     angle_mean = np.mean(angle)
     # Loop through packet, perform calculations on individual frames
