@@ -1,5 +1,10 @@
 """
-[insert file description]
+tcp_server.py
+
+Description: Stays in a standby state waiting for a client connection. When a connection is received it instantiates
+another thread to receive said file. If that file received is a zip it unpacks the zip into the archives folder and
+appends an array of relative frame locations to the new_packets queue.
+
 """
 
 import os
@@ -12,6 +17,7 @@ from Server.archive import Archive
 
 
 class TCPServer:
+
     """
     TCP Server Side of the connection between Server and host
     Running listenLoop Prepares the server to listen to all possible receive files.
@@ -22,10 +28,11 @@ class TCPServer:
     s = None
     new_packets = []
     new_backsub = True
+
     def __init__(self, host: str = socket.gethostname(), port: int = 8080):
         """
         Connects this server object to the host IP and Port
-        :param host: //IP
+        :param host:
         :param port:
         """
         print("Server Online")
@@ -43,7 +50,7 @@ class TCPServer:
         if not (os.path.exists("./archives")):
             os.mkdir("./archives")
 
-    def listen_loop(self):
+    def listen_loop(self) -> None:
         """
         Main Functionality Loop.
         Run in separate thread in the start_server file.
@@ -60,7 +67,7 @@ class TCPServer:
             print(
                 "*** TCP Server \"{}\" error while connecting client to server***".format(err_type))
 
-    def __receive_file(self, c):
+    def __receive_file(self, c) -> None:
         """
         Receive file from client
         :param c: //Client
@@ -94,7 +101,7 @@ class TCPServer:
             print(
                 "*** TCP SERVER \"%s\" error while trying to receive file ***" % err_type)
 
-    def __unpack(self, archive_name):
+    def __unpack(self, archive_name) -> None:
         first = time.time()
         parent_dir = os.getcwd()
         frame_archive = Archive(archive_name)

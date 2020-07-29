@@ -4,8 +4,9 @@ Author: Ryan Schildknecht
 
 SRS cross-reference
 Functional Requirement 3.1.2 - The FDS client shall offer a GUI frontend for users.
-Functional Requirement
+SDD cross-reference: Implements Section 3.2 (The CLERN Client)
 
+Description: This class defines the primary UI that configures their actions towards the server
 """
 
 import tkinter as tk
@@ -21,8 +22,6 @@ from Client.tcp_client import TCPClient
 class CLERNFDS(tk.Frame):
     """
     This is what the client will be interacting with primarily
-
-    GUI will hang until everything is done processing
 
     Threading a thread alongside this gui with the gui object as a parameter will allow that thread dynamic access
     to variables
@@ -110,11 +109,15 @@ class CLERNFDS(tk.Frame):
         self.root.wm_title("CLERN Fall Detection System")
         self.root.wm_protocol("WM_DELETE_WINDOW", self.__on_close)
 
-    def loop(self):
+    def loop(self) -> None:
+        """
+        Sets the run state before calling mainloop
+        :return:
+        """
         self.is_running = True
         self.mainloop()
 
-    def __generate_camera_indexes(self):
+    def __generate_camera_indexes(self) -> None:
         """
         Gets all accessible camera indexes to a max of ten and puts them in a dict
         under self.cameras["indexes"]
@@ -133,7 +136,7 @@ class CLERNFDS(tk.Frame):
             i -= 1
         self.cameras["indexes"] = arr
 
-    def __update_index_drop_down(self):
+    def __update_index_drop_down(self) -> None:
         """
         Updates the dropdown selection of indexes
         :return: None
@@ -153,7 +156,7 @@ class CLERNFDS(tk.Frame):
                                                  command=lambda val: self.__update_selected_index(val))
         self.index_drop_down.grid(row=6, column=0, padx=15, pady=(0,15), sticky="w")
 
-    def __update_selected_index(self, val):
+    def __update_selected_index(self, val) -> None:
         """
         Helper function to updateIndexDropDown
         :param val: Camera index
@@ -161,7 +164,7 @@ class CLERNFDS(tk.Frame):
         """
         self.selected_index = val
 
-    def __update_contact_dropdown(self):
+    def __update_contact_dropdown(self) -> None:
         """
         Updates the tkinter contact removal dropdown
         :return: None
@@ -179,7 +182,7 @@ class CLERNFDS(tk.Frame):
                                                  command=lambda val: self.__update_selected_contact(val))
         self.contactDropdown.grid(row=4, column=0, padx=15, sticky="w")
 
-    def __update_selected_contact(self, val):
+    def __update_selected_contact(self, val) -> None:
         """
         Helper function to update_contact_dropdown
         :param val: Contact that has been selected
@@ -187,7 +190,7 @@ class CLERNFDS(tk.Frame):
         """
         self.selected_contact = int(val)
 
-    def __add_contact(self):
+    def __add_contact(self) -> None:
         """
         Validates phone number then adds it to the contacts.txt
         then updates the contact dropdown
@@ -214,7 +217,7 @@ class CLERNFDS(tk.Frame):
             self.contact_entry.delete(0, tk.END)
             self.contact_entry.insert(0, "INVALID #")
 
-    def __delete_contact(self):
+    def __delete_contact(self) -> None:
         """
         Deletes contact selected on the contact dropdown
         :return: None
@@ -236,7 +239,7 @@ class CLERNFDS(tk.Frame):
                 print("***Error: File Currently Open*** errmsg=%s" % e)
         self.__update_contacts()
 
-    def __update_contacts(self):
+    def __update_contacts(self) -> None:
         """
         Pulls the contacts from the contacts.txt and loads them onto memory
         :return: None
@@ -256,14 +259,14 @@ class CLERNFDS(tk.Frame):
         # Update the dropdown
         self.__update_contact_dropdown()
 
-    def __update_server(self, file_name):
+    def __update_server(self, file_name) -> None:
         """
         Sends the contacts.txt
         :return: None
         """
         self.client.send_file(file_name)
 
-    def __on_close(self):
+    def __on_close(self) -> None:
         """
         Essentially the Destructor Call
         :return: None
@@ -271,13 +274,11 @@ class CLERNFDS(tk.Frame):
         print("CLERN FDS closing...")
         # stop concurrent processes
         self.is_running = False
-        # set the stop event
-        self.stop_event.set()
         # GUI Hangs until the program it is running inside comes to an end
         self.root.quit()
 
 
-def run_check(gui):
+def run_check(gui) -> None:
     """
     Concurrent runtime loop that runs alongside the CLERN GUI
     :param gui: The CLERN FDS GUI
