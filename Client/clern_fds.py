@@ -1,7 +1,12 @@
 """
 clern_fds.py
 Author: Ryan Schildknecht
-Camera Ready
+
+SRS cross-reference:
+Functional Requirement 3.1.1 - The client software must capture video from a user feed.
+Functional Requirement 3.1.3 - The client software must communicate to server software.
+Non-Functional Requirement 3.2.1 - The CLERN Client shall send video frames to the FDS Server, at most, once per second.
+Non-Functional Requirement 3.2.3 - The FDS Client shall be configurable to change video feed source.
 """
 
 import os
@@ -35,7 +40,6 @@ def main():
 
 def clear_frames():
     """ Clear all frames in the ./Frames folder"""
-
     if os.path.exists("./Frames"):
         for filename in os.listdir("./Frames"):
             file_path = os.path.join("./Frames", filename)
@@ -49,6 +53,17 @@ def clear_frames():
 
 
 def frame_processes(gui, frame_client):
+    """
+    This loop only runs when the gui is running, gets the camera index from the gui configuration
+    SRS:
+    F.R. 3.1.1
+    F.R. 3.1.3
+    N.F.R 3.2.1
+    N.F.R 3.2.3
+    :param gui: The Client Interface
+    :param frame_client: The TCP_Client object to deliver files to the server
+    :return:
+    """
     while not gui.is_running:
         pass
     # Frame Deliverance
@@ -65,7 +80,6 @@ def frame_processes(gui, frame_client):
         frames = []
         # open the cap (throwaway values)
         ret, frame = cap.read()
-
         cv2.imwrite("mask.jpg", frame)
         frame_client.send_file("mask.jpg")
         it = time.time()

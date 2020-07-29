@@ -55,12 +55,12 @@ class TCPServer:
                 c, c_address = self.s.accept()
                 print("Connection from: {}".format(str(c_address)))
                 # Receives file while listening to next file.
-                ThreadPoolExecutor().submit(self.receive_file, c)
+                ThreadPoolExecutor().submit(self.__receive_file, c)
         except Exception as err_type:
             print(
                 "*** TCP Server \"{}\" error while connecting client to server***".format(err_type))
 
-    def receive_file(self, c):
+    def __receive_file(self, c):
         """
         Receive file from client
         :param c: //Client
@@ -74,11 +74,10 @@ class TCPServer:
                 write_header = file_header if (file_header == "contacts.txt") else "./archives/" + file_header
                 with open(write_header, "wb") as write_file:
                     while True:
-                        bytes_read = c.recv(1024)
+                        bytes_read = c.recv(4096)
                         if not bytes_read:
                             break
                         write_file.write(bytes_read)
-                        # print("+", end="")
                         # TCP Response
                         c.send(response.encode('utf-8'))
                     write_file.close()
@@ -88,14 +87,14 @@ class TCPServer:
                 if file_header == "mask.jpg":
                     self.new_backsub = True
                 elif file_header != "contacts.txt" and file_header != "mask.jpg":
-                    self.unpack(write_header)
+                    self.__unpack(write_header)
                     print(f"{time.time() - first} to receive and unpack")
 
         except Exception as err_type:
             print(
                 "*** TCP SERVER \"%s\" error while trying to receive file ***" % err_type)
 
-    def unpack(self, archive_name):
+    def __unpack(self, archive_name):
         first = time.time()
         parent_dir = os.getcwd()
         frame_archive = Archive(archive_name)

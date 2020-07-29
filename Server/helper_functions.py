@@ -33,7 +33,7 @@ def get_rectangles(frame_array, name_array) -> dict:
         x, y, w, h = cv.boundingRect(contour)
         box = [(x, y), ((x + w), y), (x, (y + h)), ((x + w), (y + h))]
         if box != [(0, 0), (1280, 0), (0, 720), (1280, 720)]:
-            print(cv.boundingRect(contour))
+            #print(cv.boundingRect(contour))
             cv.rectangle(frame_array[cur_image],
                          (x, y), ((x+w), (y+h)), (255, 0, 0), 2)
             cv.imshow('Backsub', frame_array[cur_image])

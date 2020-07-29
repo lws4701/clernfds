@@ -13,7 +13,7 @@ def main():
     if not (os.path.exists('Frames')):
         os.mkdir('Frames')
     # Start The ClientGUI
-    gui = CLERNFDS(['fall-02.mp4'])
+    gui = CLERNFDS(['fall-01.mp4', 'fall-04.mp4', 'fall-07.mp4', 'fall-13.mp4', 'fall-29.mp4'])
     # Init the Client being used to submit files
     client = TCPClient()
     # Get the frame deliverance loop started
@@ -48,6 +48,7 @@ def frame_processes(gui, frame_client):
         pass
     # Frame Deliverance
     while gui.is_running:
+        time.sleep(.01)
         print("New Index")
         index = gui.selected_index
 
@@ -58,7 +59,8 @@ def frame_processes(gui, frame_client):
         frames = []
 
         # open the cap (throwaway values)
-        cap.read()
+        ret, frame = cap.read()
+        cv2.imwrite('mask.jpg', frame)
         frame_client.send_file('mask.jpg')
         it = time.time()
         while index == gui.selected_index and cap.isOpened() and gui.is_running:
@@ -78,7 +80,7 @@ def frame_processes(gui, frame_client):
                     archiveCount = 0
                 print(f"{time.time() - it} seconds to collect and deliver archive.")
                 it = time.time()
-            time.sleep(.02)  # time between frames in 30 fps for when putting in a mp4
+            cv2.waitKey(33)  # time between frames in 30 fps for when putting in a mp4
         cap.release()
         clear_frames()
 
