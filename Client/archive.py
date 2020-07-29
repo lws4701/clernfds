@@ -15,26 +15,24 @@ class Archive:
         self.name_wo_extension = file_name.replace('.zip', '')
         self.zip_archive = ZipFile(file_name, 'w')
 
-    def add(self, file_name):
+    def add(self, file_name) -> None:
+        """ Adds a specified file to the .zip """
         try:
             self.zip_archive.write(file_name)
         except Exception as err_type:
             print("Unable to add %s to %s: %s" %
                   (file_name, self.zip_archive.file_name, err_type))
 
-    def extract(self):
+    def extract(self) -> None:
         os.mkdir(self.name_wo_extension)
         os.chdir(self.name_wo_extension)
         self.zip_archive.extractall()
         self.zip_archive.close()
 
-    def close(self):
-        """Ryan - Need this to send a valid .zip"""
+    def close(self) -> None:
+        """ Closes the Archive """
         self.zip_archive.close()
 
-    def open(self):
-        """
-        Ryan - May have some use for future
-        (maybe only instantiate the zip once?)
-        """
+    def open(self) -> None:
+        """ Opens the Zip """
         self.zip_archive.open()

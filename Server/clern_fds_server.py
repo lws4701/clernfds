@@ -1,6 +1,8 @@
 """
 clern_server.py
 
+Authors: CLERN FDS Team
+
 SRS cross-reference: The purpose of this file is to satisfy the functional requirement referenced in our
 SRS document in section 3.1.3 (Implementing client-server communication).
 In addition, background subtraction is performed here, so it is in partial fulfillment of section 3.1.4.
@@ -74,12 +76,15 @@ def detection_loop(server) -> None:
                     ProcessPoolExecutor().submit(message_sender.send_image_messages, file_name, fall_id,
                                                  file_name.split('.')[2])
                     print("***Fall detected at %s***" % fall_id)
+                    cv2.imshow("***FALL DETECTED***", cv2.imread(fall_id))
+                    cv2.waitKey(1000)
+                    cv2.destroyWindow("***FALL DETECTED***")
+
                 print(f"{time() - first} to view packet")
             except Exception as e:
                 print(f"[{e}] error in fall detection loop")
                 os.chdir(parent_dir)
                 pass
-
 
 if __name__ == '__main__':
     main()

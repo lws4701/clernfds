@@ -7,6 +7,8 @@ Functional Requirement 3.1.1 - The client software must capture video from a use
 Functional Requirement 3.1.3 - The client software must communicate to server software.
 Non-Functional Requirement 3.2.1 - The CLERN Client shall send video frames to the FDS Server, at most, once per second.
 Non-Functional Requirement 3.2.3 - The FDS Client shall be configurable to change video feed source.
+SDD cross-reference: Implements Section 3.2 (The CLERN Client)
+
 """
 
 import os
@@ -38,7 +40,7 @@ def main():
     print("Program Closed")
 
 
-def clear_frames():
+def clear_frames() -> None:
     """ Clear all frames in the ./Frames folder"""
     if os.path.exists("./Frames"):
         for filename in os.listdir("./Frames"):
@@ -52,7 +54,7 @@ def clear_frames():
                 print('Failed to delete %s. Reason: %s' % (file_path, e))
 
 
-def frame_processes(gui, frame_client):
+def frame_processes(gui, frame_client) -> None:
     """
     This loop only runs when the gui is running, gets the camera index from the gui configuration
     SRS:
@@ -104,7 +106,7 @@ def frame_processes(gui, frame_client):
         clear_frames()
 
 
-def deliver(frames, archive_num, client):
+def deliver(frames, archive_num, client) -> None:
     """
     Creates an Archive of Collected Frames.
     Sends that Archive

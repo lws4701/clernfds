@@ -16,7 +16,11 @@ class Archive:
         self.name_woextension = file_name.replace('.zip', '')
         self.zip_archive = ZipFile(file_name, 'r')
 
-    def extract(self):
+    def extract(self) -> None:
+        """
+        Extracts all of the zip contents into the current directory
+        :return:
+        """
         if not os.path.exists(self.name_woextension):
             os.mkdir(self.name_woextension)
         os.chdir(self.name_woextension)
