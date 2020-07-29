@@ -7,7 +7,7 @@ SRS document in section 3.2.5.
 SDD cross-reference: This functionality is referenced as fallAlertSms() in Interaction Diagram in section
 3.5.1.
 
-Description: This file houses the two main required functionalities of sending fall alert SMS to the emergency contacts.
+Description: This file houses the two main required functionalities of sending fall alert messages to the emergency contacts.
 """
 
 import requests
@@ -31,7 +31,7 @@ from_number = conf['from_number']
 verified_numbers = conf['verified_numbers']
 
 
-def get_contacts():
+def get_contacts() -> set:
     """
     Open contacts.txt and load them into an array. Then Performs
     set intersection on contacts and verified numbers so that texts

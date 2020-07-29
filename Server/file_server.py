@@ -85,7 +85,9 @@ def zip_listener(server) -> None:
                 fall_id = detect_fall(motion_data)
                 print(fall_id)
                 if fall_id != "":
+                    # First send just the text messages indicating the fall
                     message_sender.send_text_messages()
+                    # Then send the image messages in a separate thread
                     file_name = fall_id.partition("Frames/")[2]
                     ProcessPoolExecutor().submit(message_sender.send_image_messages, file_name, fall_id, file_name.split('.')[2])
                     print("Fall detected at Packet %s, Frame %s" % (os.getcwd(), fall_id))
