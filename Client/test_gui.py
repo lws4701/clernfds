@@ -6,13 +6,12 @@ import os
 import shutil
 import tkinter as tk
 from time import sleep
-# from PIL import ImageTk, Image
 from concurrent.futures.thread import ThreadPoolExecutor
 import threading
 import cv2
 import json
 import phonenumbers
-from Client.tcp_client import TCPClient
+from tcp_client import TCPClient
 
 
 class CLERNFDS(tk.Frame):

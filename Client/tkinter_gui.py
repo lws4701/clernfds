@@ -16,7 +16,7 @@ import threading
 import cv2
 import json
 import phonenumbers
-from Client.tcp_client import TCPClient
+from tcp_client import TCPClient
 
 
 class CLERNFDS(tk.Frame):

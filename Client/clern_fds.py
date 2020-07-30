@@ -15,9 +15,9 @@ import os
 import shutil
 import time
 import cv2
-from Client.archive import Archive
-from Client.tcp_client import TCPClient
-from Client.tkinter_gui import CLERNFDS
+from archive import Archive
+from tcp_client import TCPClient
+from tkinter_gui import CLERNFDS
 from concurrent.futures import ThreadPoolExecutor
 
 

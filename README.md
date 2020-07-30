@@ -27,7 +27,7 @@ Use python's pip module to install the following dependencies:
 
 ### Opening the Client (For running against test videos)
 1. Start the server
-2. Unpack test_videos.zip into clernfds/Client/test
-3. Modify line 16 in Client/test/test_clern.py to point to the desired test video
-4. Double click the file "test_clern.py" in the "test" folder inside the "Client" folder.
+2. Unpack test_videos.zip into clernfds/Client/
+3. Modify line 16 in Client/test_clern.py to point to the desired test video
+4. Double click the file "test_clern.py" inside the "Client" folder. (Note: If selected ends, you will be unable to select another video without restarting test_clern.py)
 5. Repeat Steps 3-4 as desired

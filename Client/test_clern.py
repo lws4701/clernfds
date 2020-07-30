@@ -2,18 +2,18 @@ import os
 import shutil
 import time
 import cv2
-from Client.archive import Archive
-from Client.tcp_client import TCPClient
-from Client.test.test_gui import CLERNFDS
+from archive import Archive
+from tcp_client import TCPClient
+from test_gui import CLERNFDS
 from concurrent.futures import ThreadPoolExecutor
 
 
 def main():
     # Ensure proper directories exist
-    if not (os.path.exists('Frames')):
-        os.mkdir('Frames')
-    # Start The ClientGUI
-    gui = CLERNFDS(['fall-01.mp4', 'fall-04.mp4', 'fall-07.mp4', 'fall-13.mp4', 'fall-29.mp4'])
+    if not (os.path.exists('./Frames')):
+        os.mkdir('./Frames')
+    # Start The ClientGUI (INSERT VIDEO FILE PATH BELOW)
+    gui = CLERNFDS(['fall-01.mp4'])
     # Init the Client being used to submit files
     client = TCPClient()
     # Get the frame deliverance loop started
@@ -23,7 +23,6 @@ def main():
 
     gui.loop()
     t.shutdown()
-
     clear_frames()
     print("Program Closed")
 
