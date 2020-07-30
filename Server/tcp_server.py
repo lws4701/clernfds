@@ -13,7 +13,7 @@ import socket
 import time
 from concurrent.futures import ThreadPoolExecutor
 
-from Server.archive import Archive
+from archive import Archive
 
 
 class TCPServer:

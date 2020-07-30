@@ -1,32 +1,19 @@
-"""
-clern_fds.py
-Author: Ryan Schildknecht
-
-SRS cross-reference:
-Functional Requirement 3.1.1 - The client software must capture video from a user feed.
-Functional Requirement 3.1.3 - The client software must communicate to server software.
-Non-Functional Requirement 3.2.1 - The CLERN Client shall send video frames to the FDS Server, at most, once per second.
-Non-Functional Requirement 3.2.3 - The FDS Client shall be configurable to change video feed source.
-SDD cross-reference: Implements Section 3.2 (The CLERN Client)
-
-"""
-
 import os
 import shutil
 import time
 import cv2
 from archive import Archive
 from tcp_client import TCPClient
-from tkinter_gui import CLERNFDS
+from test_gui import CLERNFDS
 from concurrent.futures import ThreadPoolExecutor
 
 
 def main():
     # Ensure proper directories exist
-    if not (os.path.exists('Frames')):
-        os.mkdir('Frames')
+    if not (os.path.exists('./Frames')):
+        os.mkdir('./Frames')
     # Start The ClientGUI
-    gui = CLERNFDS()
+    gui = CLERNFDS(['fall-01.mp4', 'fall-04.mp4', 'fall-07.mp4', 'fall-13.mp4', 'fall-29.mp4'])
     # Init the Client being used to submit files
     client = TCPClient()
     # Get the frame deliverance loop started
@@ -40,8 +27,9 @@ def main():
     print("Program Closed")
 
 
-def clear_frames() -> None:
+def clear_frames():
     """ Clear all frames in the ./Frames folder"""
+
     if os.path.exists("./Frames"):
         for filename in os.listdir("./Frames"):
             file_path = os.path.join("./Frames", filename)
@@ -54,68 +42,57 @@ def clear_frames() -> None:
                 print('Failed to delete %s. Reason: %s' % (file_path, e))
 
 
-def frame_processes(gui, frame_client) -> None:
-    """
-    This loop only runs when the gui is running, gets the camera index from the gui configuration
-    SRS:
-    F.R. 3.1.1
-    F.R. 3.1.3
-    N.F.R 3.2.1
-    N.F.R 3.2.3
-    :param gui: The Client Interface
-    :param frame_client: The TCP_Client object to deliver files to the server
-    :return:
-    """
+def frame_processes(gui, frame_client):
     while not gui.is_running:
         pass
     # Frame Deliverance
     while gui.is_running:
+        time.sleep(.01)
         print("New Index")
-        index = int(gui.selected_index)
+        index = gui.selected_index
 
         cap = cv2.VideoCapture(index)
-        # doesn't work on a webcam
-        cap.set(cv2.CAP_PROP_FPS, 30)
 
-        frame_count = 0
-        archive_count = 0
+        frameCount = 0
+        archiveCount = 0
         frames = []
+
         # open the cap (throwaway values)
         ret, frame = cap.read()
-        cv2.imwrite("mask.jpg", frame)
-        frame_client.send_file("mask.jpg")
+        cv2.imwrite('mask.jpg', frame)
+        frame_client.send_file('mask.jpg')
         it = time.time()
-        while index == int(gui.selected_index) and cap.isOpened() and gui.is_running:
+        while index == gui.selected_index and cap.isOpened() and gui.is_running:
             ret, frame = cap.read()
-            frame_count += 1
-            if frame_count % 3 == 0:
+            frameCount += 1
+            if frameCount % 3 == 0:
                 file_name = 'Frames/' + str(time.time()) + '.jpg'
                 cv2.imwrite(file_name, frame)
                 frames.append(file_name)
                 print(f'{file_name} saved')
-            if frame_count == 30:
-                archive_count += 1
-                deliver(frames, archive_count, frame_client)
+            if frameCount == 30:
+                archiveCount += 1
+                __deliver(frames, archiveCount, frame_client)
                 frames.clear()
-                if archive_count == 10:
-                    archive_count = 0
-                frame_count = 0
+                frameCount = 0
+                if archiveCount == 10:
+                    archiveCount = 0
                 print(f"{time.time() - it} seconds to collect and deliver archive.")
                 it = time.time()
+            cv2.waitKey(33)  # time between frames in 30 fps for when putting in a mp4
         cap.release()
         clear_frames()
 
 
-def deliver(frames, archive_num, client) -> None:
+def __deliver(frames, count, client):
     """
     Creates an Archive of Collected Frames.
     Sends that Archive
-    :param frames: Collection of frames being passed
-    :param archive_num: The number of the archive being passed (1-10)
-    :param client: The CLERN FDS client
+    :param frames:
+    :param client:
     :return:
     """
-    img_zip = Archive(str(archive_num) + ".zip")
+    img_zip = Archive(str(count) + ".zip")
     file_name = img_zip.file_name
     for frame in frames:
         img_zip.add(frame)

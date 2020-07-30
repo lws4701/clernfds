@@ -24,10 +24,10 @@ from concurrent.futures.thread import ThreadPoolExecutor
 # Non Standard Library Imports
 import cv2
 
-from Server import motion_detector, message_sender
-from Server.fall_detector import detect_fall
-from Server.helper_functions import *
-from Server.tcp_server import TCPServer
+import motion_detector, message_sender
+from fall_detector import detect_fall
+from helper_functions import *
+from tcp_server import TCPServer
 
 
 def main() -> None:
