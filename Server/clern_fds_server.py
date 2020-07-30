@@ -18,7 +18,6 @@ implement the CLERN image analyzer.
 # Standard Library Imports
 import os
 from time import sleep, time
-import shutil
 from concurrent.futures.process import ProcessPoolExecutor
 from concurrent.futures.thread import ThreadPoolExecutor
 # Non Standard Library Imports
