@@ -78,7 +78,7 @@ class CLERNFDS(tk.Frame):
         self.contact_entry.insert(tk.INSERT, "3145567823")
         # Contact Add Button
         add_btn = tk.Button(self.root, text="Add",
-                            command=lambda: self.add_contact())
+                            command=lambda: self.__add_contact())
         add_btn.grid(row=2, column=1, padx=15, sticky="w")
 
         """ Contact Delete Dropdown """
