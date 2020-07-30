@@ -18,7 +18,6 @@ implement the CLERN image analyzer.
 # Standard Library Imports
 import os
 from time import sleep, time
-import shutil
 from concurrent.futures.process import ProcessPoolExecutor
 from concurrent.futures.thread import ThreadPoolExecutor
 # Non Standard Library Imports
@@ -71,7 +70,9 @@ def detection_loop(server) -> None:
                 motion_data = motion_detector.motion_data_from_frames(rectangles)
                 fall_id = detect_fall(motion_data)
                 if fall_id != "":
+                    # First send just the text messages indicating the fall
                     message_sender.send_text_messages()
+                    # Then send the image messages in a separate thread
                     file_name = fall_id.partition("Frames/")[2]
                     ProcessPoolExecutor().submit(message_sender.send_image_messages, file_name, fall_id,
                                                  file_name.split('.')[2])
